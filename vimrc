@@ -1,7 +1,7 @@
 " PLUG EXTENSIONS
 call plug#begin('~/.vim/plugged')
 "Plug 'rafi/awesome-vim-colorschemes'
-Plug 'scrooloose/nerdtree'
+"Plug 'scrooloose/nerdtree'
 "Plug 'w0rp/ale'
 "
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -9,7 +9,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "Plug 'dracula/vim'
 "Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 "Plug 'junegunn/fzf.vim'
-Plug 'evanleck/vim-svelte', {'branch': 'main'}
+"Plug 'evanleck/vim-svelte', {'branch': 'main'}
+Plug 'leafOfTree/vim-svelte-plugin'
 Plug 'airblade/vim-gitgutter'
 
 "Plug 'evanleck/vim-svelte'
@@ -70,6 +71,21 @@ set directory=.
 set list
 set listchars=tab:>-,eol:\
 set wrap
+" include @ character to file path characters for gf/gF
+set isfname+=@-@
+let g:vim_svelte_plugin_use_typescript = 1
+let g:vim_svelte_plugin_use_sass = 1
+let g:vim_svelte_plugin_has_init_indent = 1
+" netrw
+"let g:netrw_liststyle = 3
+"let g:netrw_winsize = 18 
+let g:netrw_banner = 0
+"let g:netrw_hide = 1
+"let g:netrw_preview = 1
+" inc/dec number under cursor
+" because <C-a> is used by tmux
+noremap <buffer> <nowait> <LEADER>+ <C-a>
+noremap <buffer> <nowait> <LEADER>- <C-x>
 " END OF BASIC SETTINGS
 
 
@@ -117,20 +133,35 @@ endfunction
 
 
 
-
-
 " CUSTOM BINDINGS
+let g:openRgAndFzfInSplit = 0
 function OpenRgPlusFzf()
-  execute 'terminal bash -c "rg --max-filesize 2M  . | fzf --multi"'
+  if has('nvim') && g:openRgAndFzfInSplit
+    execute 'split | terminal bash -c "rg --no-ignore -n --max-filesize 2M  . | fzf --multi"'
+  else
+    execute 'terminal bash -c "rg --no-ignore -n --max-filesize 2M  . | fzf --multi"'
+  endif
 endfunction
 function OpenFzf()
-  execute 'terminal fzf --multi'
+  if has('nvim') && g:openRgAndFzfInSplit
+    execute 'split | terminal fzf --multi'
+  else
+    execute 'terminal fzf --multi'
+  endif
 endfunction
 map <space>r :call OpenRgPlusFzf()<enter>
 map <space>f :call OpenFzf()<enter>
-map <C-n> :NERDTreeToggle<CR>
+if exists(":NERDTreeToggle")
+  map <C-n> :NERDTreeToggle<CR>
+endif
+if 1 || exists(":Explore")
+  map <C-n> :Explore<CR>
+endif
 if exists(":CocRestart")
   autocmd BufEnter *.svelte execute ":silent! CocRestart"
+endif
+if has('nvim')
+  autocmd TermOpen term://* startinsert
 endif
 " END OF CUSTOM BINDINGS
 
