@@ -1,101 +1,13 @@
-" PLUG EXTENSIONS
+" PLUG SECTION
 call plug#begin('~/.vim/plugged')
-"Plug 'rafi/awesome-vim-colorschemes'
-"Plug 'scrooloose/nerdtree'
-"Plug 'w0rp/ale'
-"
+Plug 'flazz/vim-colorschemes'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-"Plug 'dracula/vim'
-"Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-"Plug 'junegunn/fzf.vim'
-"Plug 'evanleck/vim-svelte', {'branch': 'main'}
 Plug 'leafOfTree/vim-svelte-plugin'
 Plug 'airblade/vim-gitgutter'
-
-"Plug 'evanleck/vim-svelte'
-"Plug 'pangloss/vim-javascript'
-"Plug 'coc-extensions/coc-svelte'
-" Plug 'Valloric/YouCompleteMe'
-" Plug 'cakebaker/scss-syntax.vim'
-" Plug 'Quramy/tsuquyomi'
-" Plug 'leafgarland/typescript-vim'
-" Plug 'Quramy/vim-js-pretty-template'
-" Plug 'scrooloose/nerdtree'
-" Plug 'Xuyuanp/nerdtree-git-plugin'
-" Plug 'nathanaelkane/vim-indent-guides'
-" Plug 'alvan/vim-closetag'
-" Plug 'digitaltoad/vim-pug'
-" Plug 'groenewege/vim-less'
-" Plug 'StanAngeloff/php.vim'
-" Plug 'SirVer/ultisnips'
-" Plug 'honza/vim-snippets'
-" Plug 'evanleck/vim-svelte'
-" Plug 'pangloss/vim-javascript'
-" Plug 'dense-analysis/ale'
 call plug#end()
-" END OF PLUG EXTENSIONS
+" END OF PLUG SECTION
 
 
-"" Only run linters named in ale_linters settings.
-"let g:ale_linters_explicit = 1
-"let g:ale_completion_enabled = 1
-"set omnifunc=ale#completion#OmniFunc
-"let g:ale_completion_autoimport = 1
-"let g:ale_linters = {
-"\ 'javascript': ['tsserver']
-"\}
-
-
-" BASIC SETTINGS
-filetype plugin indent on
-syntax on
-colorscheme default
-set background=light
-set timeoutlen=1000
-set ttimeoutlen=0
-set hlsearch
-set incsearch
-set relativenumber
-set number
-set hidden
-set smartindent
-set autoindent
-set laststatus=2
-set wildmenu
-set wildmode=list:full
-set tabstop=2
-
-"set expandtab
-set noexpandtab
-
-set shiftwidth=2
-set directory=.
-
-"set list
-set nolist
-
-set listchars=tab:>-,eol:\
-set wrap
-" include @ character to file path characters for gf/gF
-set isfname+=@-@
-let g:vim_svelte_plugin_use_typescript = 1
-let g:vim_svelte_plugin_use_sass = 1
-let g:vim_svelte_plugin_has_init_indent = 1
-" netrw
-"let g:netrw_liststyle = 3
-"let g:netrw_winsize = 18 
-let g:netrw_banner = 0
-"let g:netrw_hide = 1
-"let g:netrw_preview = 1
-" inc/dec number under cursor
-" because <C-a> is used by tmux
-noremap <buffer> <nowait> <LEADER>+ <C-a>
-noremap <buffer> <nowait> <LEADER>- <C-x>
-" exist terminal mode with escape key
-tnoremap <Esc> <C-\><C-n>
-"set timeoutlen=100 ttimeoutlen=100
-" END OF BASIC SETTINGS
 
 
 
@@ -143,46 +55,55 @@ endfunction
 
 
 
-" CUSTOM BINDINGS
-let g:openRgAndFzfInSplit = 0
-function OpenRgPlusFzf()
-  if has('nvim') && g:openRgAndFzfInSplit
-    execute 'split | terminal bash -c "rg --no-ignore -n --max-filesize 2M  . | fzf --multi"'
-  else
-    execute 'terminal bash -c "rg --no-ignore -n --max-filesize 2M  . | fzf --multi"'
-  endif
+" FZF SECTION
+let g:rgCmd = 'rg --no-ignore --line-number --max-filesize 2M  .'
+let g:fzfBindings = ' --bind=\''ctrl-n:preview-page-down\'' --bind=\''ctrl-u:preview-page-up\'' '
+let g:fzfPreviewConfHidden = ' --preview-window="right:wrap:+{2}/3:hidden" '
+let g:fzfPreviewConfRight = ' --preview-window="right:wrap:+{2}/3" '
+let g:fzfPreviewConfTop = ' --preview-window="top:wrap:+{2}/3" '
+let g:fzfPreviewWithBat = ' --preview \'' bat --style=numbers --color=always --highlight-line=$(l={2};l=${l:-1};echo $l) {1} \'' '
+let g:fzfPreviewWithCat = ' --preview \'' cat --number {1} \'' '
+function GenerateFzfCommand()
+	let g:fzfPreviewConf = g:fzfPreviewConfRight
+	if winwidth(0) < 120
+		let g:fzfPreviewConf = g:fzfPreviewConfTop
+		if winheight(0) < 20
+			let g:fzfPreviewConf = g:fzfPreviewConfHidden
+		endif
+	endif
+	let g:fzfPreview = g:fzfPreviewWithBat
+	if !executable("bat")
+		let g:fzfPreview = g:fzfPreviewWithCat
+	endif
+	let g:fzfCmd = 'fzf ' . g:fzfPreviewConf . g:fzfBindings . '  --delimiter=\'':\'' ' . g:fzfPreview
+	return g:fzfCmd
 endfunction
-function OpenFzf()
-  if has('nvim') && g:openRgAndFzfInSplit
-    execute 'split | terminal fzf --multi'
-  else
-    execute 'terminal fzf --multi'
-  endif
+function StartFzf(withRg)
+	if !executable("fzf")
+		echoerr 'no fzf exec found'
+		return
+	endif
+	let g:fzfCmd = GenerateFzfCommand()
+	let g:cmd = g:fzfCmd
+	if a:withRg
+		if !executable("rg")
+			echoerr 'no ripgrep exec found'
+			throw l:output
+			return
+		endif
+		let g:cmd = g:rgCmd . ' | ' . g:fzfCmd
+	endif
+	execute ' terminal bash -c $''' . g:cmd . '  '' '
 endfunction
-map <space>r :call OpenRgPlusFzf()<enter>
-map <space>f :call OpenFzf()<enter>
-if exists(":NERDTreeToggle")
-  map <C-n> :NERDTreeToggle<CR>
-endif
-if 1 || exists(":Explore")
-  map <C-n> :Explore<CR>
-endif
-if exists(":CocRestart")
-  autocmd BufEnter *.svelte execute ":silent! CocRestart"
-endif
-if has('nvim')
-  autocmd TermOpen term://* startinsert
-endif
-" END OF CUSTOM BINDINGS
+map <space>r :call StartFzf(1)<enter>
+map <space>f :call StartFzf(0)<enter>
+" END OF FZF SECTION
 
 
 
 
 " COC CONFIGURATION
 let g:coc_global_extensions = ['coc-json']
-" Set internal encoding of vim, not needed on neovim, since coc.nvim using some
-" unicode characters in the file autoload/float.vim
-set encoding=utf-8
 " TextEdit might fail if hidden is not set.
 set hidden
 " Some servers have issues with backup files, see #649.
@@ -267,54 +188,52 @@ nmap <leader>a  <Plug>(coc-codeaction-selected)
 nmap <leader>ac  <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
 nmap <leader>qf  <Plug>(coc-fix-current)
-" Map function and class text objects
-" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-xmap if <Plug>(coc-funcobj-i)
-omap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap af <Plug>(coc-funcobj-a)
-xmap ic <Plug>(coc-classobj-i)
-omap ic <Plug>(coc-classobj-i)
-xmap ac <Plug>(coc-classobj-a)
-omap ac <Plug>(coc-classobj-a)
-" Remap <C-f> and <C-b> for scroll float windows/popups.
-if has('nvim-0.4.0') || has('patch-8.2.0750')
-  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-endif
-" Use CTRL-S for selections ranges.
-" Requires 'textDocument/selectionRange' support of language server.
-nmap <silent> <C-s> <Plug>(coc-range-select)
-xmap <silent> <C-s> <Plug>(coc-range-select)
-" Add `:Format` command to format current buffer.
-command! -nargs=0 Format :call CocAction('format')
-" Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-" Add `:OR` command for organize imports of the current buffer.
-command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
-" Add (Neo)Vim's native statusline support.
-" NOTE: Please see `:h coc-status` for integrations with external plugins that
-" provide custom statusline: lightline.vim, vim-airline.
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-" Mappings for CoCList
-" Show all diagnostics.
-nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
-" Manage extensions.
-nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
-" Show commands.
-nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
-" Find symbol of current document.
-nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-" Search workspace symbols.
-nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
-" Resume latest coc list.
-nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 " END OF COC CONFIGURATION
+
+
+
+
+
+" OPTIONS SECTION
+filetype plugin indent on
+syntax on
+colorscheme 1989
+set encoding=utf-8
+set background=light
+set timeoutlen=1000
+set ttimeoutlen=0
+set hlsearch
+set incsearch
+set relativenumber
+set number
+set hidden
+set smartindent
+set autoindent
+set laststatus=2
+set wildmenu
+set wildmode=list:full
+set tabstop=2
+let g:netrw_keepj=""
+set expandtab
+set shiftwidth=2
+set directory=.
+set nolist
+set listchars=tab:>-,eol:\
+set wrap
+map <C-n> :Explore<CR>
+" include @ character to file path characters for gf/gF
+set isfname+=@-@ 
+let g:netrw_banner = 0
+" inc/dec number under cursor
+noremap <buffer> <nowait> <LEADER>+ <C-a>
+noremap <buffer> <nowait> <LEADER>- <C-x>
+" exist terminal mode with escape key
+tnoremap <Esc> <C-\><C-n>
+if exists(":CocRestart")
+  autocmd BufEnter *.svelte execute ":silent! CocRestart"
+endif
+if has('nvim')
+  autocmd TermOpen term://* startinsert
+endif
+" END OF OPTIONS SECTION
