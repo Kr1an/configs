@@ -65,10 +65,16 @@ set laststatus=2
 set wildmenu
 set wildmode=list:full
 set tabstop=2
-set expandtab
+
+"set expandtab
+set noexpandtab
+
 set shiftwidth=2
 set directory=.
-set list
+
+"set list
+set nolist
+
 set listchars=tab:>-,eol:\
 set wrap
 " include @ character to file path characters for gf/gF
@@ -86,6 +92,9 @@ let g:netrw_banner = 0
 " because <C-a> is used by tmux
 noremap <buffer> <nowait> <LEADER>+ <C-a>
 noremap <buffer> <nowait> <LEADER>- <C-x>
+" exist terminal mode with escape key
+tnoremap <Esc> <C-\><C-n>
+"set timeoutlen=100 ttimeoutlen=100
 " END OF BASIC SETTINGS
 
 
@@ -95,6 +104,7 @@ noremap <buffer> <nowait> <LEADER>- <C-x>
 set statusline=\ \ 
 set statusline+=%#StatusLine#%{GetStatusLineCWDPart()}%*
 set statusline+=%#StatusLineNC#%{GetStatusLineFilePart()}%*
+set statusline+=%m
 set statusline+=%=
 set statusline+=\ %y
 set statusline+=\ %p%%
