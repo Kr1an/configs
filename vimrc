@@ -110,7 +110,7 @@ set hidden
 set nobackup
 set nowritebackup
 " Give more space for displaying messages.
-set cmdheight=2
+set cmdheight=1
 " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
 " delays and poor user experience.
 set updatetime=300
@@ -198,15 +198,16 @@ set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 " OPTIONS SECTION
 filetype plugin indent on
 syntax on
-colorscheme 1989
+colorscheme default
+set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾
 set encoding=utf-8
-set background=light
+set background=dark
 set timeoutlen=1000
 set ttimeoutlen=0
 set hlsearch
 set incsearch
-set relativenumber
-set number
+set norelativenumber
+set nonumber
 set hidden
 set smartindent
 set autoindent
