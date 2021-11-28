@@ -94,18 +94,29 @@ function StartExplorer(isTree, isInCurFileDir)
       " open project ROOT directory 
       terminal
     endif
-    au CursorMoved <buffer> if &buftype == 'terminal' | call SyncTerminalPWD()
+    au CursorMoved <buffer> if &buftype == 'terminal' | call SyncTerminalPath()
     call MakeBufferInvisible()
     autocmd BufEnter,BufLeave <buffer> call MakeBufferInvisible()
     call feedkeys("ls\<CR>")
   endif
 endfunction
-function SyncTerminalPWD()
+function SyncTerminalPath()
+  let markerForCurrentPWD = "__bash_explorer__"
   let terminalBufferNumber = bufnr()
   let info = getbufinfo(terminalBufferNumber)
   let title = info[0].variables.term_title
   let pwd = substitute(title, "^.*: ", "", "")
-  execute 'lcd' fnameescape(pwd)
+  let pathComponents = split(&path, ",")
+  let markerIndex = index(pathComponents, markerForCurrentPWD)
+  if markerIndex == -1
+    let pathComponents += [markerForCurrentPWD, ""]
+  endif
+  let markerIndex = index(pathComponents, markerForCurrentPWD)
+  if markerIndex == -1
+    echoerr 'file explorer code can not find marker in &path'
+  endif
+  let pathComponents[markerIndex + 1] = expand(pwd)
+  let &path = join(pathComponents, ",") . ","
 endfunction
 " END OF FILE EXPLORER SECTION
 
