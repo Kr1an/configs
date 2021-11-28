@@ -2,7 +2,7 @@
 call plug#begin('~/.vim/plugged')
 Plug 'flazz/vim-colorschemes'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'leafOfTree/vim-svelte-plugin'
+Plug 'evanleck/vim-svelte', {'branch': 'main'}
 Plug 'airblade/vim-gitgutter'
 Plug 'preservim/nerdtree'
 call plug#end()
@@ -294,9 +294,6 @@ set wrap
 " include @ character to file path characters for gf/gF
 set isfname+=@-@ 
 " netrw section
-"let g:netrw_banner = 0
-"let g:netrw_keepj=""
-"let g:netrw_bufsettings = 'buflisted nowrap'
 let NERDTreeHijackNetrw=1
 let g:loaded_netrw       = 1
 let g:loaded_netrwPlugin = 1
