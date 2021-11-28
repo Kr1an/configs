@@ -10,6 +10,21 @@ call plug#end()
 
 
 
+" CUSTOM MAPPINGS SECTION
+" fzf mappings
+map <space>r :call StartFzf(1)<enter>
+map <space>f :call StartFzf(0)<enter>
+" inc/dec number under cursor
+noremap <buffer> <nowait> <LEADER>+ <C-a>
+noremap <buffer> <nowait> <LEADER>- <C-x>
+" exist terminal mode with escape key
+tnoremap <Esc> <C-\><C-n>
+" file explorer mappings
+map <F2>          :call StartExplorer(1, 1)<enter>
+map <LEADER><F2>  :call StartExplorer(1, 0)<enter>
+map <F3>          :call StartExplorer(0, 1)<enter>
+map <LEADER><F3>  :call StartExplorer(0, 0)<enter>
+" END OF CUSTOM MAPPINGS SECTION
 
 
 
@@ -56,9 +71,49 @@ endfunction
 
 
 
+
+
+" FILE EXPLORER SECTION
+function StartExplorer(isTree, isInCurFileDir)
+  if a:isTree
+    " use NERDTREE as explorer
+    if a:isInCurFileDir
+      " open current FILE directory 
+      e %:h
+    else
+      " open project ROOT directory 
+      e .
+    endif
+  else
+    " use BASH as file explorer
+    if a:isInCurFileDir
+      " open current FILE directory 
+      execute 'lcd' fnameescape(expand("%:p:h"))
+      terminal
+    else
+      " open project ROOT directory 
+      terminal
+    endif
+    au CursorMoved <buffer> if &buftype == 'terminal' | call SyncTerminalPWD()
+    call MakeBufferInvisible()
+    autocmd BufEnter,BufLeave <buffer> call MakeBufferInvisible()
+    call feedkeys("ls\<CR>")
+  endif
+endfunction
+function SyncTerminalPWD()
+  let terminalBufferNumber = bufnr()
+  let info = getbufinfo(terminalBufferNumber)
+  let title = info[0].variables.term_title
+  let pwd = substitute(title, "^.*: ", "", "")
+  execute 'lcd' fnameescape(pwd)
+endfunction
+" END OF FILE EXPLORER SECTION
+
+
+
 " FZF SECTION
 let g:rgCmd = 'rg --no-ignore --line-number --max-filesize 2M  .'
-let g:fzfBindings = ' --bind=\''ctrl-n:preview-page-down\'' --bind=\''ctrl-u:preview-page-up\'' '
+let g:fzfBindings = ' --bind=\''ctrl-h:preview-page-down\'' --bind=\''ctrl-n:preview-page-down\'' --bind=\''ctrl-u:preview-page-up\'' '
 let g:fzfPreviewConfHidden = ' --preview-window="right:wrap:+{2}/3:hidden" '
 let g:fzfPreviewConfRight = ' --preview-window="right:wrap:+{2}/3" '
 let g:fzfPreviewConfTop = ' --preview-window="top:wrap:+{2}/3" '
@@ -101,8 +156,6 @@ endfunction
 function MakeBufferInvisible()
   set nobuflisted bufhidden=wipe noswapfile
 endfunction
-map <space>r :call StartFzf(1)<enter>
-map <space>f :call StartFzf(0)<enter>
 " END OF FZF SECTION
 
 
@@ -221,22 +274,21 @@ set laststatus=2
 set wildmenu
 set wildmode=list:full
 set tabstop=2
-let g:netrw_keepj=""
 set expandtab
 set shiftwidth=2
 set directory=.
 set nolist
 set listchars=tab:>-,eol:\
 set wrap
-map <C-n> :Explore<CR>
 " include @ character to file path characters for gf/gF
 set isfname+=@-@ 
-let g:netrw_banner = 0
-" inc/dec number under cursor
-noremap <buffer> <nowait> <LEADER>+ <C-a>
-noremap <buffer> <nowait> <LEADER>- <C-x>
-" exist terminal mode with escape key
-tnoremap <Esc> <C-\><C-n>
+" netrw section
+"let g:netrw_banner = 0
+"let g:netrw_keepj=""
+"let g:netrw_bufsettings = 'buflisted nowrap'
+let NERDTreeHijackNetrw=1
+let g:loaded_netrw       = 1
+let g:loaded_netrwPlugin = 1
 if exists(":CocRestart")
   autocmd BufEnter *.svelte execute ":silent! CocRestart"
 endif
