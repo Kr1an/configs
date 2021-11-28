@@ -4,6 +4,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'leafOfTree/vim-svelte-plugin'
 Plug 'airblade/vim-gitgutter'
+Plug 'preservim/nerdtree'
 call plug#end()
 " END OF PLUG SECTION
 
@@ -94,6 +95,11 @@ function StartFzf(withRg)
 		let g:cmd = g:rgCmd . ' | ' . g:fzfCmd
 	endif
 	execute ' terminal bash -c $''' . g:cmd . '  '' '
+  call MakeBufferInvisible()
+  autocmd BufEnter,BufLeave <buffer> call MakeBufferInvisible()
+endfunction
+function MakeBufferInvisible()
+  set nobuflisted bufhidden=wipe noswapfile
 endfunction
 map <space>r :call StartFzf(1)<enter>
 map <space>f :call StartFzf(0)<enter>
