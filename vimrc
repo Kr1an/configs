@@ -5,9 +5,9 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'evanleck/vim-svelte', {'branch': 'main'}
 Plug 'airblade/vim-gitgutter'
 Plug 'preservim/nerdtree'
+Plug 'adelarsq/vim-matchit'
 call plug#end()
 " END OF PLUG SECTION
-
 
 
 " CUSTOM MAPPINGS SECTION
@@ -20,8 +20,10 @@ noremap <buffer> <nowait> <LEADER>- <C-x>
 " exist terminal mode with escape key
 tnoremap <Esc> <C-\><C-n>
 " file explorer mappings
+" for nerdtree
 map <F2>          :call StartExplorer(1, 1)<enter>
 map <LEADER><F2>  :call StartExplorer(1, 0)<enter>
+" for bash explorer
 map <F3>          :call StartExplorer(0, 1)<enter>
 map <LEADER><F3>  :call StartExplorer(0, 0)<enter>
 " END OF CUSTOM MAPPINGS SECTION
@@ -88,13 +90,18 @@ function StartExplorer(isTree, isInCurFileDir)
     " use BASH as file explorer
     if a:isInCurFileDir
       " open current FILE directory 
-      execute 'lcd' fnameescape(expand("%:p:h"))
+      let curFileDir = fnameescape(expand("%:p:h"))
+      echo curFileDir
       terminal
+      " cd to cur dir
+      let cdCmd = "cd " . curFileDir . "\<CR>"
+      call feedkeys(cdCmd)
     else
       " open project ROOT directory 
       terminal
     endif
     au CursorMoved <buffer> if &buftype == 'terminal' | call SyncTerminalPath()
+    "nnoremap <buffer> gf :call RunGFInsideTerminal()<enter>
     call MakeBufferInvisible()
     autocmd BufEnter,BufLeave <buffer> call MakeBufferInvisible()
     call feedkeys("ls\<CR>")
@@ -118,13 +125,28 @@ function SyncTerminalPath()
   let pathComponents[markerIndex + 1] = expand(pwd)
   let &path = join(pathComponents, ",") . ","
 endfunction
+function RunGFInsideTerminal()
+  let nodeUnderCursor = expand("<cfile>")
+  echo nodeUnderCursor
+  if filereadable(nodeUnderCursor)
+    execute ":fin <cfile>"
+  elseif isdirectory(nodeUnderCursor)
+    startinsert
+    call feedkeys("cd " . nodeUnderCursor . "\<CR>")
+  endif
+endfunction
 " END OF FILE EXPLORER SECTION
 
 
 
 " FZF SECTION
 let g:rgCmd = 'rg --no-ignore --line-number --max-filesize 2M  .'
-let g:fzfBindings = ' --bind=\''ctrl-h:preview-page-down\'' --bind=\''ctrl-n:preview-page-down\'' --bind=\''ctrl-u:preview-page-up\'' '
+let g:fzfBindings = '
+      \ --bind=\''ctrl-h:backward-word\''
+      \ --bind=\''ctrl-l:forward-word\''
+      \ --bind=\''ctrl-n:preview-page-down\''
+      \ --bind=\''ctrl-u:preview-page-up\''
+      \'
 let g:fzfPreviewConfHidden = ' --preview-window="right:wrap:+{2}/3:hidden" '
 let g:fzfPreviewConfRight = ' --preview-window="right:wrap:+{2}/3" '
 let g:fzfPreviewConfTop = ' --preview-window="top:wrap:+{2}/3" '
