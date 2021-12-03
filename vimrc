@@ -144,8 +144,8 @@ let g:rgCmd = 'rg --no-ignore --line-number --max-filesize 2M  .'
 let g:fzfBindings = '
       \ --bind=\''ctrl-h:backward-word\''
       \ --bind=\''ctrl-l:forward-word\''
-      \ --bind=\''ctrl-n:preview-page-down\''
-      \ --bind=\''ctrl-u:preview-page-up\''
+      \ --bind=\''ctrl-e:preview-page-down\''
+      \ --bind=\''ctrl-y:preview-page-up\''
       \'
 let g:fzfPreviewConfHidden = ' --preview-window="right:wrap:+{2}/3:hidden" '
 let g:fzfPreviewConfRight = ' --preview-window="right:wrap:+{2}/3" '
@@ -164,7 +164,7 @@ function GenerateFzfCommand()
 	if !executable("bat")
 		let g:fzfPreview = g:fzfPreviewWithCat
 	endif
-	let g:fzfCmd = 'fzf ' . g:fzfPreviewConf . g:fzfBindings . '  --delimiter=\'':\'' ' . g:fzfPreview
+	let g:fzfCmd = 'fzf ' . g:fzfPreviewConf . g:fzfBindings . ' --multi --history=/tmp/fzf-history.txt  --delimiter=\'':\'' ' . g:fzfPreview
 	return g:fzfCmd
 endfunction
 function StartFzf(withRg)
@@ -185,9 +185,41 @@ function StartFzf(withRg)
 	execute ' terminal bash -c $''' . g:cmd . '  '' '
   call MakeBufferInvisible()
   autocmd BufEnter,BufLeave <buffer> call MakeBufferInvisible()
+  autocmd TermClose <buffer> call WhenTermProcessFinished()
 endfunction
 function MakeBufferInvisible()
   set nobuflisted bufhidden=wipe noswapfile
+endfunction
+function WhenTermProcessFinished()
+  " populate quickfix with results
+  let curLine = getline('.')
+  let newQFValue = []
+  
+  for line in getline('1', '$')
+    if line == ""
+      break
+    endif
+    let lineComps = split(line, ":")
+    let compAmount = len(lineComps)
+    let qfEntry = {}
+    let qfEntry.filename = lineComps[0]
+    if !filereadable(qfEntry.filename)
+      return
+    endif
+    if compAmount >= 2
+      let qfEntry.lnum = lineComps[1]
+    endif
+    if compAmount >= 3
+      let qfEntry.text = lineComps[2]
+    endif
+    call extend(newQFValue, [qfEntry])
+  endfor
+  execute ':hide'
+  if len(newQFValue)
+    call setqflist(newQFValue)
+    execute 'copen'
+    return
+  endif
 endfunction
 " END OF FZF SECTION
 
