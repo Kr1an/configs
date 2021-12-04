@@ -102,8 +102,7 @@ function StartExplorer(isTree, isInCurFileDir)
     endif
     au CursorMoved <buffer> if &buftype == 'terminal' | call SyncTerminalPath()
     "nnoremap <buffer> gf :call RunGFInsideTerminal()<enter>
-    call MakeBufferInvisible()
-    autocmd BufEnter,BufLeave <buffer> call MakeBufferInvisible()
+    call MakeCurrentBufferInvisibleForEver()
     call feedkeys("ls\<CR>")
   endif
 endfunction
@@ -140,12 +139,14 @@ endfunction
 
 
 " FZF SECTION
+let g:fzfTmpFile = '/tmp/fzf-vim-result'
 let g:rgCmd = 'rg --no-ignore --line-number --max-filesize 2M  .'
 let g:fzfBindings = '
       \ --bind=\''ctrl-h:backward-word\''
       \ --bind=\''ctrl-l:forward-word\''
       \ --bind=\''ctrl-e:preview-page-down\''
       \ --bind=\''ctrl-y:preview-page-up\''
+      \ --bind=\''ctrl-space:toggle-all\''
       \'
 let g:fzfPreviewConfHidden = ' --preview-window="right:wrap:+{2}/3:hidden" '
 let g:fzfPreviewConfRight = ' --preview-window="right:wrap:+{2}/3" '
@@ -168,6 +169,7 @@ function GenerateFzfCommand()
 	return g:fzfCmd
 endfunction
 function StartFzf(withRg)
+  call system('!rm -f ' . g:fzfTmpFile)
 	if !executable("fzf")
 		echoerr 'no fzf exec found'
 		return
@@ -182,27 +184,32 @@ function StartFzf(withRg)
 		endif
 		let g:cmd = g:rgCmd . ' | ' . g:fzfCmd
 	endif
-	execute ' terminal bash -c $''' . g:cmd . '  '' '
-  call MakeBufferInvisible()
-  autocmd BufEnter,BufLeave <buffer> call MakeBufferInvisible()
+	execute ' terminal bash -c $''' . g:cmd . '  '' > ' . g:fzfTmpFile
+  call MakeCurrentBufferInvisibleForEver()
   autocmd TermClose <buffer> call WhenTermProcessFinished()
 endfunction
-function MakeBufferInvisible()
-  set nobuflisted bufhidden=wipe noswapfile
+function SetParamsForInvisBuffer()
+  set nobuflisted noswapfile
+endfunction
+function MakeCurrentBufferInvisibleForEver()
+  call SetParamsForInvisBuffer()
+  autocmd BufEnter,BufLeave <buffer> call SetParamsForInvisBuffer()
 endfunction
 function WhenTermProcessFinished()
-  " populate quickfix with results
-  let curLine = getline('.')
+  let tmpFileLineList = readfile(g:fzfTmpFile)
+  call system('!rm -f' . g:fzfTmpFile)
   let newQFValue = []
-  
-  for line in getline('1', '$')
+  for line in tmpFileLineList
     if line == ""
       break
     endif
     let lineComps = split(line, ":")
     let compAmount = len(lineComps)
-    let qfEntry = {}
-    let qfEntry.filename = lineComps[0]
+    let qfEntry = {
+        \ 'lnum': 1,
+        \ 'text': lineComps[0],
+        \ 'filename': lineComps[0],
+        \ }
     if !filereadable(qfEntry.filename)
       return
     endif
@@ -214,11 +221,13 @@ function WhenTermProcessFinished()
     endif
     call extend(newQFValue, [qfEntry])
   endfor
-  execute ':hide'
+  set modifiable
+  execute ':e /tmp/' . fnameescape(strftime('%c')) 
+  execute ':0r ' . g:fzfTmpFile
+  execute ':w'
+  call MakeCurrentBufferInvisibleForEver()
   if len(newQFValue)
     call setqflist(newQFValue)
-    execute 'copen'
-    return
   endif
 endfunction
 " END OF FZF SECTION
