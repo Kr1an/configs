@@ -124,7 +124,7 @@ function GenerateFzfCommand()
 	if !executable("bat")
 		let g:fzfPreview = g:fzfPreviewWithCat
 	endif
-	let g:fzfCmd = 'fzf ' . g:fzfPreviewConf . g:fzfBindings . ' --multi --history=/tmp/fzf-history.txt  --delimiter=\'':\'' ' . g:fzfPreview
+	let g:fzfCmd = 'fzf ' . g:fzfPreviewConf . g:fzfBindings . ' --multi --history=/tmp/fzf-history.txt  --delimiter=\'':\'' --nth=1,3,.. ' . g:fzfPreview
 	return g:fzfCmd
 endfunction
 function StartFzf(withRg)
@@ -185,7 +185,7 @@ function WhenTermProcessFinished()
   execute ':0r ' . g:fzfTmpFile
   execute ':w'
   call MakeCurrentBufferInvisibleForEver()
-  if len(newQFValue)
+  if len(newQFValue) > 1
     call setqflist(newQFValue)
   endif
 endfunction
@@ -258,15 +258,15 @@ set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 filetype plugin indent on
 syntax on
 colorscheme default
+set nofixendofline
 set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾
 set encoding=utf-8
-set background=dark
 set timeoutlen=1000
 set ttimeoutlen=0
 set hlsearch
 set incsearch
-set norelativenumber
-set nonumber
+set relativenumber
+set number
 set hidden
 set smartindent
 set autoindent
@@ -293,3 +293,20 @@ if has('nvim')
   autocmd TermOpen term://* startinsert
 endif
 " END OF OPTIONS SECTION
+
+
+set background=dark
+" white&black
+
+" with temp color
+hi Normal ctermfg=15 ctermbg=16
+hi Pmenu ctermfg=254 ctermbg=238
+hi PmenuSel ctermfg=254 ctermbg=242
+hi SignColumn ctermbg=232
+hi CocErrorSign ctermfg=203
+let lineNrBackground = 232
+let lineNrExtra = 240
+exec 'hi LineNr ctermfg=244 ctermbg=' . lineNrBackground
+exe 'hi LineNrAbove ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
+exe 'hi LineNrBelow ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
+hi Constant ctermfg=144
