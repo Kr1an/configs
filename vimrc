@@ -98,6 +98,7 @@ endfunction
 
 
 " FZF SECTION
+" TODO: https://www.mankier.com/1/fzf#Key/Event_Bindings-Reload_Input
 let g:fzfTmpFile = '/tmp/fzf-vim-result'
 let g:rgCmd = 'rg --no-ignore --line-number --max-filesize 2M  .'
 let g:fzfBindings = '
