@@ -1,0 +1,53 @@
+xterm*faceName: NovaMono
+xterm*allowBoldFonts: false
+xterm*faceSize: 16
+xterm*foreground: white
+xterm*background: black
+xterm*selectToClipboard: true
+xterm*termName: xterm-256color
+XTerm*vt100.translations: #override \
+    Shift Ctrl <Key> C: copy-selection(CLIPBOARD) \n\
+    Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
+
+!!! Background
+! Black
+!xterm*background: #000000
+! Green
+!xterm*background: #022C0A
+! Brown
+!xterm*background: #3F2F08
+! Black
+
+
+!xterm*cursorColor:  #57fd76
+!xterm*cursorColor:  yellow
+!xterm*cursorColor:      orange
+
+!xterm*charClass:        33:48,35-38:48,39:43,42-47:48,58-59:48,61:48,63-64:48,126:48
+!xterm*dynamicColors:    true
+
+
+! Blacks
+xterm*color0:           #ff0000
+!xterm*color8:           #505450
+!! Reds
+!xterm*color1:           #a60101
+!xterm*color9:           #f99090
+!! Greens
+!xterm*color2:           #026802
+!xterm*color10:          #a7e14b
+!! Yellows
+!xterm*color3:           #ab6e03
+!xterm*color11:          #fddc01
+!! Blues
+!xterm*color4:           #4a5463
+!xterm*color12:          #7d8794
+!! Purples
+!xterm*color5:           #9c3885
+!xterm*color13:          #e628ba
+!! Cyans
+!xterm*color6:           #08bab0
+!xterm*color14:          #74fff7
+!! Whites
+!xterm*color7:           #bbbbbb
+!xterm*color15:          #ffffff
