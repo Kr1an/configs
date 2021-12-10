@@ -106,7 +106,7 @@ function WhenTermProcessFinished()
   endfor
   set modifiable 
   let l:curBufNum = bufnr('%')
-  exe ':bprevious'
+  exe ':silent! bprevious'
   exe ':bwipeout! ' . l:curBufNum
   if len(newQFValue) == 0 | return
   elseif len(newQFValue) == 1 | exe ':e ' . newQFValue[0].filename . ' | filetype detect'
