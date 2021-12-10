@@ -25,8 +25,8 @@ function StartBashAsFSExplorer()
   let cdCmd = "cd " . curFileDir . "\<CR>"
   call feedkeys(cdCmd)
   au CursorMoved <buffer> if &buftype == 'terminal' | call SyncTerminalPath()
-  set nobuflisted noswapfile()
-  autocmd BufEnter,BufLeave <buffer> set nobuflisted noswapfile()
+  set nobuflisted noswapfile
+  autocmd BufEnter,BufLeave <buffer> set nobuflisted noswapfile
   call feedkeys("ls\<CR>")
 endfunction
 function SyncTerminalPath()
