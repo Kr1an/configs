@@ -107,7 +107,7 @@ function WhenTermProcessFinished()
   set modifiable | exe ':bwipeout!'
   if len(newQFValue) == 0 | return
   elseif len(newQFValue) == 1 | exe ':e ' . newQFValue[0].filename . ' | filetype detect'
-  else | call setqflist(newQFValue)
+  else | call setqflist(newQFValue) | exe ':cfirst | filetype detect'
   endif
 endfunction
 """ END OF FZF SECTION
