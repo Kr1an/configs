@@ -104,7 +104,10 @@ function WhenTermProcessFinished()
     if compAmount > 2 | let qfEntry.text = lineComps[2] | endif
     call extend(newQFValue, [qfEntry])
   endfor
-  set modifiable | exe ':bwipeout!'
+  set modifiable 
+  let l:curBufNum = bufnr('%')
+  exe ':bprevious'
+  exe ':bwipeout! ' . l:curBufNum
   if len(newQFValue) == 0 | return
   elseif len(newQFValue) == 1 | exe ':e ' . newQFValue[0].filename . ' | filetype detect'
   else | call setqflist(newQFValue) | exe ':cfirst | filetype detect'
