@@ -1,72 +1,22 @@
-" PLUG SECTION
+""" PLUG SECTION
 call plug#begin('~/.vim/plugged')
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'evanleck/vim-svelte', {'branch': 'main'}
 Plug 'airblade/vim-gitgutter'
 call plug#end()
-" END OF PLUG SECTION
-
-
-" CUSTOM MAPPINGS SECTION
-" fzf mappings
-map <space>r :call StartFzf(1)<enter>
-map <space>f :call StartFzf(0)<enter>
-" inc/dec number under cursor
-noremap <buffer> <nowait> <LEADER>+ <C-a>
-noremap <buffer> <nowait> <LEADER>- <C-x>
-" exist terminal mode with escape key
-tnoremap <Esc> <C-\><C-n>
-" file explorer mappings
-" for nerdtree
-" END OF CUSTOM MAPPINGS SECTION
+""" END OF PLUG SECTION
 
 
 
-" STATUSLINE FORMATTING 
-set statusline=\ \ 
-set statusline+=%#StatusLine#%{GetStatusLineCWDPart()}%*
-set statusline+=%#StatusLineNC#%{GetStatusLineFilePart()}%*
-set statusline+=%m
-set statusline+=%=
-set statusline+=\ %y
-set statusline+=\ %p%%
-set statusline+=\ %l:%c
-set statusline+=\ 
-function GetStatusLineCWDPart()
-  let rawCwd = getcwd()
-  let cwd = rawCwd
-  if cwd[-1:] !=# '/'
-    let cwd = cwd . '/'
-  endif
-  let filepath = expand('%:p')
-  if len(filepath) == 0
-    return cwd
-  endif
-  if len(filepath) < len(cwd)
-    return '[!cwd] '
-  endif
-  if filepath[0:len(cwd)-1] !=# cwd
-    return '[!cwd] '
-  endif
-  return cwd
-endfunction
-function GetStatusLineFilePart()
-  let cwdPart = GetStatusLineCWDPart()
-  let path = expand('%')
-  if len(path) == 0
-    return '[!file]'
-  endif
-  if cwdPart[:1] ==# '/'
-    let path = path[1:]
-  endif
-  return path
-endfunction
-" END OF STATUSLINE FORMATTING
-
-
-
-
-" BASH AS FILE EXPLORER
+""" BASH AS FILE EXPLORER
+" This section adds keybinding to open terminal enchanced with some triks:
+" - When cd to some directory, use gf/gF/<c-w>f/... to open file
+"   under cursor. No global PWD manipulations.
+" - The terminal is hidden from the visible buffers list(:ls).
+" - The terminal is opened in current file directory. Ex:
+"   if you are editing ~/test/text.txt, it will be
+"   opened in ~/test/.
+" - When opened, 'ls' command is issued automatically.
 map <F3> :call StartBashAsFSExplorer()<enter>
 function StartBashAsFSExplorer()
   let curFileDir = fnameescape(expand("%:p:h"))
@@ -75,7 +25,8 @@ function StartBashAsFSExplorer()
   let cdCmd = "cd " . curFileDir . "\<CR>"
   call feedkeys(cdCmd)
   au CursorMoved <buffer> if &buftype == 'terminal' | call SyncTerminalPath()
-  call MakeCurrentBufferInvisibleForEver()
+  set nobuflisted noswapfile()
+  autocmd BufEnter,BufLeave <buffer> set nobuflisted noswapfile()
   call feedkeys("ls\<CR>")
 endfunction
 function SyncTerminalPath()
@@ -93,132 +44,86 @@ function SyncTerminalPath()
   let pathComponents[markerIndex + 1] = expand(pwd)
   let &path = join(pathComponents, ",") . ","
 endfunction
-" END OF BASH AS FILE EXPLORER
+""" END OF BASH AS FILE EXPLORER
 
 
 
-" FZF SECTION
-" TODO: https://www.mankier.com/1/fzf#Key/Event_Bindings-Reload_Input
+
+""" FZF SECTION
+" - system package requirenments: [ripgrep, fzf, bat]
+" This section provides keybindings to work with bash tools: fzf/rg.
+" The idea is to open these tools inside the terminal in the buffer
+" and add some logic to iterract with these commands. 
+" 
+" - Preview window is opened based on current terminal size. If the
+"   terminal size is small, than the preview window will try to fit
+"   of will be hidden completly.
+" - Multiselection is enabled in fzf with <Shift><Tab> keybindings.
+" - The terminal is invisible in ls.
+" - When fzf program returned some result, based on that result various
+"   resolutions exists:
+"   - If single file was selected, than this file will be opened.
+"   - If multiple files are selected, than qf list will be filled.
+"   - If no file selected, simple wipe The terminal and go back to previously
+"   opened buffer.
+map <space>r :call StartFzf(1)<enter>
+map <space>f :call StartFzf(0)<enter>
 let g:fzfTmpFile = '/tmp/fzf-vim-result'
-let g:rgCmd = 'rg --no-ignore --line-number --max-filesize 2M  .'
-let g:fzfBindings = '
-      \ --bind=\''ctrl-h:backward-word\''
-      \ --bind=\''ctrl-l:forward-word\''
-      \ --bind=\''ctrl-e:preview-page-down\''
-      \ --bind=\''ctrl-y:preview-page-up\''
-      \ --bind=\''ctrl-space:toggle-all\''
-      \'
-let g:fzfPreviewConfHidden = ' --preview-window="right:wrap:+{2}/3:hidden" '
-let g:fzfPreviewConfRight = ' --preview-window="right:wrap:+{2}/3" '
-let g:fzfPreviewConfTop = ' --preview-window="top:wrap:+{2}/3" '
-let g:fzfPreviewWithBat = ' --preview \'' bat --style=numbers --color=always --highlight-line=$(l={2};l=${l:-1};echo $l) {1} \'' '
-let g:fzfPreviewWithCat = ' --preview \'' cat --number {1} \'' '
+let g:rgCmd = 'rg --no-ignore --no-heading --line-number --max-filesize 2M --hidden --glob "!.git"  .'
+let g:fzfBindings = ' --bind=\''ctrl-r:backward-word\'' --bind=\''ctrl-t:forward-word\'' --bind=\''ctrl-e:preview-page-down\'' --bind=\''ctrl-y:preview-page-up\'' --bind=\''ctrl-space:toggle-all\'' '
 function GenerateFzfCommand()
-	let g:fzfPreviewConf = g:fzfPreviewConfRight
-	if winwidth(0) < 120
-		let g:fzfPreviewConf = g:fzfPreviewConfTop
-		if winheight(0) < 20
-			let g:fzfPreviewConf = g:fzfPreviewConfHidden
-		endif
-	endif
-	let g:fzfPreview = g:fzfPreviewWithBat
-	if !executable("bat")
-		let g:fzfPreview = g:fzfPreviewWithCat
-	endif
+  let l:smallH = winwidth(0) < 120
+  let l:smallV = winheight(0) < 20
+  let g:fzfPreviewConf = ' --preview-window="' . (l:smallH ? 'top' : 'right') . ':wrap:+{2}/3' . (l:smallV && l:smallH ? ':hidden' : '') . '" '
+	let g:fzfPreview = ' --preview \'' bat --style=numbers --color=always --highlight-line=$(l={2};l=${l:-1};echo $l) {1} \'' '
 	let g:fzfCmd = 'fzf ' . g:fzfPreviewConf . g:fzfBindings . ' --multi --history=/tmp/fzf-history.txt  --delimiter=\'':\'' --nth=1,3,.. ' . g:fzfPreview
 	return g:fzfCmd
 endfunction
 function StartFzf(withRg)
+  if !executable("rg") || !executable("fzf") || !executable("bat") | echoerr 'no deps required deps installed' | throw l:output | return | endif
   call system('!rm -f ' . g:fzfTmpFile)
-	if !executable("fzf")
-		echoerr 'no fzf exec found'
-		return
-	endif
 	let g:fzfCmd = GenerateFzfCommand()
 	let g:cmd = g:fzfCmd
-	if a:withRg
-		if !executable("rg")
-			echoerr 'no ripgrep exec found'
-			throw l:output
-			return
-		endif
-		let g:cmd = g:rgCmd . ' | ' . g:fzfCmd
-	endif
+	if a:withRg | let g:cmd = g:rgCmd . ' | ' . g:fzfCmd | endif
 	execute ' terminal bash -c $''' . g:cmd . '  '' > ' . g:fzfTmpFile
-  call MakeCurrentBufferInvisibleForEver()
   autocmd TermClose <buffer> call WhenTermProcessFinished()
-endfunction
-function SetParamsForInvisBuffer()
   set nobuflisted noswapfile
-endfunction
-function MakeCurrentBufferInvisibleForEver()
-  call SetParamsForInvisBuffer()
-  autocmd BufEnter,BufLeave <buffer> call SetParamsForInvisBuffer()
+  autocmd BufEnter,BufLeave <buffer> set nobuflisted noswapfile
 endfunction
 function WhenTermProcessFinished()
   let tmpFileLineList = readfile(g:fzfTmpFile)
   call system('!rm -f' . g:fzfTmpFile)
   let newQFValue = []
   for line in tmpFileLineList
-    if line == ""
-      break
-    endif
+    if line == "" | break | endif
     let lineComps = split(line, ":")
     let compAmount = len(lineComps)
-    let qfEntry = {
-        \ 'lnum': 1,
-        \ 'text': lineComps[0],
-        \ 'filename': lineComps[0],
-        \ }
-    if !filereadable(qfEntry.filename)
-      return
-    endif
-    if compAmount >= 2
-      let qfEntry.lnum = lineComps[1]
-    endif
-    if compAmount >= 3
-      let qfEntry.text = lineComps[2]
-    endif
+    let qfEntry = {'lnum':1,'text':lineComps[0],'filename':lineComps[0]}
+    if !filereadable(qfEntry.filename) | return | endif
+    if compAmount > 1 | let qfEntry.lnum = lineComps[1] | endif
+    if compAmount > 2 | let qfEntry.text = lineComps[2] | endif
     call extend(newQFValue, [qfEntry])
   endfor
-  set modifiable
-  execute ':e /tmp/' . fnameescape(strftime('%c')) 
-  execute ':0r ' . g:fzfTmpFile
-  execute ':w'
-  call MakeCurrentBufferInvisibleForEver()
-  if len(newQFValue) > 1
-    call setqflist(newQFValue)
+  set modifiable | exe ':bwipeout!'
+  if len(newQFValue) == 0 | return
+  elseif len(newQFValue) == 1 | exe ':e ' . newQFValue[0].filename . ' | filetype detect'
+  else | call setqflist(newQFValue)
   endif
 endfunction
-" END OF FZF SECTION
+""" END OF FZF SECTION
 
 
 
 
-" COC CONFIGURATION
-let g:coc_global_extensions = ['coc-json']
-set hidden
-set nobackup
-set nowritebackup
-set cmdheight=1
+""" COC CONFIGURATION
+" This section sets some of the mappings from coc.nvim extension
+" https://github.com/neoclide/coc.nvim
+let g:coc_global_extensions = ['coc-json', 'coc-tsserver', 'coc-omnisharp']
 set updatetime=300
 set shortmess+=c
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-if has('nvim')
-  inoremap <silent><expr> <c-space> coc#refresh()
-else
-  inoremap <silent><expr> <c-@> coc#refresh()
-endif
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+inoremap <silent><expr> <c-space> coc#refresh()
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm(): "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 nmap <silent> gd <Plug>(coc-definition)
@@ -226,6 +131,7 @@ nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 nnoremap <silent> K :call <SID>show_documentation()<CR>
+autocmd CursorHold * silent call CocActionAsync('highlight')
 function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
@@ -235,71 +141,34 @@ function! s:show_documentation()
     execute '!' . &keywordprg . " " . expand('<cword>')
   endif
 endfunction
-autocmd CursorHold * silent call CocActionAsync('highlight')
-nmap <leader>rn <Plug>(coc-rename)
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
-augroup mygroup
-  autocmd!
-  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-augroup end
-xmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>ac  <Plug>(coc-codeaction)
-nmap <leader>qf  <Plug>(coc-fix-current)
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-" END OF COC CONFIGURATION
+""" END OF COC CONFIGURATION
 
 
 
 
 
-" OPTIONS SECTION
+""" OPTIONS SECTION
+" This section sets various global options. 
 filetype plugin indent on
 syntax on
-colorscheme default
-set nofixendofline
-set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾
-set encoding=utf-8
-set timeoutlen=1000
-set ttimeoutlen=0
-set hlsearch
-set incsearch
-set relativenumber
-set number
-set hidden
-set smartindent
-set autoindent
-set laststatus=2
-set wildmenu
-set wildmode=list:full
-set tabstop=2
-set expandtab
-set shiftwidth=2
-set directory=.
-set nolist
-set listchars=tab:>-,eol:\
-set wrap
-" include @ character to file path characters for gf/gF
-set isfname+=@-@ 
-" netrw section
-let NERDTreeHijackNetrw=1
-let g:loaded_netrw       = 1
-let g:loaded_netrwPlugin = 1
+set wrap isfname+=@-@ nofixendofline foldcolumn=auto fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8 timeoutlen=1000 ttimeoutlen=0 hlsearch incsearch relativenumber number hidden smartindent autoindent laststatus=2 wildmenu wildmode=list:full tabstop=2 expandtab shiftwidth=2 directory=. listchars=tab:>-,eol:\
 if exists(":CocRestart")
   autocmd BufEnter *.svelte execute ":silent! CocRestart"
 endif
-if has('nvim')
-  autocmd TermOpen term://* startinsert
-endif
-" END OF OPTIONS SECTION
+autocmd TermOpen term://* startinsert
+tnoremap <Esc> <C-\><C-n>
+noremap <buffer> <nowait> <LEADER>+ <C-a>
+noremap <buffer> <nowait> <LEADER>- <C-x>
+""" END OF OPTIONS
 
 
+
+""" COLORS
+" This section configures color theme.
+" Its base on dark background and set black background as well.
+" - system requirenments: [xterm-256-colors] should be enabled.
+colorscheme default
 set background=dark
-" white&black
-
-" with temp color
 hi Normal ctermfg=15 ctermbg=16
 hi Pmenu ctermfg=254 ctermbg=238
 hi PmenuSel ctermfg=254 ctermbg=242
@@ -307,7 +176,8 @@ hi SignColumn ctermbg=232
 hi CocErrorSign ctermfg=203
 let lineNrBackground = 232
 let lineNrExtra = 240
-exec 'hi LineNr ctermfg=244 ctermbg=' . lineNrBackground
+exe 'hi LineNr ctermfg=244 ctermbg=' . lineNrBackground
 exe 'hi LineNrAbove ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
 exe 'hi LineNrBelow ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
 hi Constant ctermfg=144
+""" END OF COLORS
