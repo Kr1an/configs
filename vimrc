@@ -155,7 +155,7 @@ endfunction
 " This section sets various global options. 
 filetype plugin indent on
 syntax on
-set wrap isfname+=@-@ nofixendofline foldcolumn=auto fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8 timeoutlen=1000 ttimeoutlen=0 hlsearch incsearch relativenumber number hidden smartindent autoindent laststatus=2 wildmenu wildmode=list:full tabstop=2 expandtab shiftwidth=2 directory=. listchars=tab:>-,eol:\
+set wrap isfname+=@-@ nofixendofline foldcolumn=auto fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8 timeout timeoutlen=100 ttimeoutlen=100 hlsearch incsearch relativenumber number hidden smartindent autoindent laststatus=2 wildmenu wildmode=list:full tabstop=2 expandtab shiftwidth=2 directory=. listchars=tab:>-,eol:\
 if exists(":CocRestart")
   autocmd BufEnter *.svelte execute ":silent! CocRestart"
 endif
