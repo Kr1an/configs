@@ -75,17 +75,17 @@ function GenerateFzfCommand()
   let l:smallH = winwidth(0) < 120
   let l:smallV = winheight(0) < 20
   let g:fzfPreviewConf = ' --preview-window="' . (l:smallH ? 'top' : 'right') . ':wrap:+{2}/3' . (l:smallV && l:smallH ? ':hidden' : '') . '" '
-	let g:fzfPreview = ' --preview \'' bat --style=numbers --color=always --highlight-line=$(l={2};l=${l:-1};echo $l) {1} \'' '
-	let g:fzfCmd = 'fzf ' . g:fzfPreviewConf . g:fzfBindings . ' --multi --history=/tmp/fzf-history.txt  --delimiter=\'':\'' --nth=1,3,.. ' . g:fzfPreview
-	return g:fzfCmd
+  let g:fzfPreview = ' --preview \'' bat --style=numbers --color=always --highlight-line=$(l={2};l=${l:-1};echo $l) {1} \'' '
+  let g:fzfCmd = 'fzf ' . g:fzfPreviewConf . g:fzfBindings . ' --multi --history=/tmp/fzf-history.txt  --delimiter=\'':\'' --nth=1,3,.. ' . g:fzfPreview
+  return g:fzfCmd
 endfunction
 function StartFzf(withRg)
   if !executable("rg") || !executable("fzf") || !executable("bat") | echoerr 'no deps required deps installed' | throw l:output | return | endif
   call system('!rm -f ' . g:fzfTmpFile)
-	let g:fzfCmd = GenerateFzfCommand()
-	let g:cmd = g:fzfCmd
-	if a:withRg | let g:cmd = g:rgCmd . ' | ' . g:fzfCmd | endif
-	execute ' terminal bash -c $''' . g:cmd . '  '' > ' . g:fzfTmpFile
+  let g:fzfCmd = GenerateFzfCommand()
+  let g:cmd = g:fzfCmd
+  if a:withRg | let g:cmd = g:rgCmd . ' | ' . g:fzfCmd | endif
+  execute ' terminal bash -c $''' . g:cmd . '  '' > ' . g:fzfTmpFile
   autocmd TermClose <buffer> call WhenTermProcessFinished()
   set nobuflisted noswapfile
   autocmd BufEnter,BufLeave <buffer> set nobuflisted noswapfile
