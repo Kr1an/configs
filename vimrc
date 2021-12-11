@@ -34,7 +34,8 @@ function SyncTerminalPath()
   let terminalBufferNumber = bufnr()
   let info = getbufinfo(terminalBufferNumber)
   let title = info[0].variables.term_title
-  let pwd = substitute(title, "^.*: ", "", "")
+  let pwd = substitute(title, "^.*:", "", "")
+  let pwd = substitute(pwd, "^\\s", "", "")
   let pathComponents = split(&path, ",")
   let markerIndex = index(pathComponents, markerForCurrentPWD)
   if markerIndex == -1
