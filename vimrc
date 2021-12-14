@@ -70,18 +70,18 @@ endfunction
 map <space>r :call StartFzf(1)<enter>
 map <space>f :call StartFzf(0)<enter>
 let g:fzfTmpFile = '/tmp/fzf-vim-result'
-let g:rgCmd = 'rg --no-ignore --no-heading --line-number --max-filesize 2M --hidden --glob "!.git"  .'
+let g:rgCmd = 'rg --line-number --max-filesize 2M .'
 let g:fzfBindings = ' --bind=\''ctrl-r:backward-word\'' --bind=\''ctrl-t:forward-word\'' --bind=\''ctrl-e:preview-page-down\'' --bind=\''ctrl-y:preview-page-up\'' --bind=\''ctrl-space:toggle-all\'' '
 function GenerateFzfCommand()
   let l:smallH = winwidth(0) < 120
   let l:smallV = winheight(0) < 20
   let g:fzfPreviewConf = ' --preview-window="' . (l:smallH ? 'top' : 'right') . ':wrap:+{2}/3' . (l:smallV && l:smallH ? ':hidden' : '') . '" '
   let g:fzfPreview = ' --preview \'' bat --style=numbers --color=always --highlight-line=$(l={2};l=${l:-1};echo $l) {1} \'' '
-  let g:fzfCmd = 'fzf ' . g:fzfPreviewConf . g:fzfBindings . ' --multi --history=/tmp/fzf-history.txt  --delimiter=\'':\'' --nth=1,3,.. ' . g:fzfPreview
+  let g:fzfCmd = 'fzf ' . g:fzfPreviewConf . g:fzfBindings . '--algo=v1 --multi --history=/tmp/fzf-history.txt  --delimiter=\'':\'' --nth=1,3,.. ' . g:fzfPreview
   return g:fzfCmd
 endfunction
 function StartFzf(withRg)
-  if !executable("rg") || !executable("fzf") || !executable("bat") | echoerr 'no deps required deps installed' | throw l:output | return | endif
+  if (a:withRg && !executable("rg")) || !executable("fzf") || !executable("bat") | echoerr 'no deps required deps installed' | throw l:output | return | endif
   call system('!rm -f ' . g:fzfTmpFile)
   let g:fzfCmd = GenerateFzfCommand()
   let g:cmd = g:fzfCmd
@@ -163,6 +163,11 @@ autocmd TermOpen term://* startinsert
 tnoremap <Esc> <C-\><C-n>
 noremap <buffer> <nowait> <LEADER>+ <C-a>
 noremap <buffer> <nowait> <LEADER>- <C-x>
+augroup remember_folds
+  autocmd!
+  au BufWinLeave ?* mkview 1
+  au BufWinEnter ?* silent! loadview 1
+augroup END
 """ END OF OPTIONS
 
 
