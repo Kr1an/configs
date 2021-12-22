@@ -155,7 +155,8 @@ endfunction
 " This section sets various global options. 
 filetype plugin indent on
 syntax on
-set wrap isfname+=@-@ nofixendofline foldcolumn=auto fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8 timeout timeoutlen=100 ttimeoutlen=100 hlsearch incsearch relativenumber number hidden smartindent autoindent laststatus=2 wildmenu wildmode=list:full tabstop=2 expandtab shiftwidth=2 directory=. listchars=tab:>-,eol:\
+set wrap isfname+=@-@ nofixendofline foldcolumn=auto fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8 hlsearch incsearch relativenumber number hidden smartindent autoindent laststatus=2 wildmenu wildmode=list:full tabstop=2 expandtab shiftwidth=2 directory=. listchars=tab:>-,eol:\
+" set timeout timeoutlen=100 ttimeoutlen=500 
 if exists(":CocRestart")
   autocmd BufEnter *.svelte execute ":silent! CocRestart"
 endif
@@ -168,6 +169,10 @@ augroup remember_folds
   au BufWinLeave ?* mkview 1
   au BufWinEnter ?* silent! loadview 1
 augroup END
+nnoremap <C-s> <ESC>:w<CR>
+inoremap <C-s> <ESC>:w<CR>
+nnoremap <C-q> <ESC>:bd!<CR>
+inoremap <C-q> <ESC>:bd!<CR>
 """ END OF OPTIONS
 
 
