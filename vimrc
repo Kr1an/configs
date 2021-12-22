@@ -108,9 +108,9 @@ function WhenTermProcessFinished()
   set modifiable 
   let l:curBufNum = bufnr('%')
   exe ':silent! bprevious'
-  exe ':bwipeout! ' . l:curBufNum
+  exe ':silent! bwipeout! ' . l:curBufNum
   if len(newQFValue) == 0 | return
-  elseif len(newQFValue) == 1 | exe ':e ' . newQFValue[0].filename . ' | filetype detect'
+  elseif len(newQFValue) == 1 | exe ':e ' . newQFValue[0].filename . ' | filetype detect ' . (newQFValue[0].lnum  ? '| :' . newQFValue[0].lnum : '')
   else | call setqflist(newQFValue) | exe ':cfirst | filetype detect'
   endif
 endfunction
