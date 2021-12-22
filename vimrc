@@ -3,6 +3,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'evanleck/vim-svelte', {'branch': 'main'}
 Plug 'airblade/vim-gitgutter'
+Plug 'editorconfig/editorconfig-vim'
 call plug#end()
 """ END OF PLUG SECTION
 
@@ -87,7 +88,7 @@ function StartFzf(withRg)
   let g:cmd = g:fzfCmd
   if a:withRg | let g:cmd = g:rgCmd . ' | ' . g:fzfCmd | endif
   execute ' terminal bash -c $''' . g:cmd . '  '' > ' . g:fzfTmpFile
-  autocmd TermClose <buffer> call WhenTermProcessFinished()
+  autocmd TermClose <buffer> ++nested execute ':call WhenTermProcessFinished()'
   set nobuflisted noswapfile
   autocmd BufEnter,BufLeave <buffer> set nobuflisted noswapfile
 endfunction
@@ -110,8 +111,8 @@ function WhenTermProcessFinished()
   exe ':silent! bprevious'
   exe ':silent! bwipeout! ' . l:curBufNum
   if len(newQFValue) == 0 | return
-  elseif len(newQFValue) == 1 | exe ':e ' . newQFValue[0].filename . ' | filetype detect ' . (newQFValue[0].lnum  ? '| :' . newQFValue[0].lnum : '')
-  else | call setqflist(newQFValue) | exe ':cfirst | filetype detect'
+  elseif len(newQFValue) == 1 | exe ':e ' . newQFValue[0].filename . (newQFValue[0].lnum  ? '| :' . newQFValue[0].lnum : '')
+  else | call setqflist(newQFValue) | exe ':cfirst'
   endif
 endfunction
 """ END OF FZF SECTION
@@ -155,8 +156,12 @@ endfunction
 " This section sets various global options. 
 filetype plugin indent on
 syntax on
-set wrap isfname+=@-@ nofixendofline foldcolumn=auto fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8 hlsearch incsearch relativenumber number hidden smartindent autoindent laststatus=2 wildmenu wildmode=list:full tabstop=2 expandtab shiftwidth=2 directory=. listchars=tab:>-,eol:\
-" set timeout timeoutlen=100 ttimeoutlen=500 
+set wrap isfname+=@-@ nofixendofline foldcolumn=auto
+set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8
+set hlsearch incsearch relativenumber number hidden
+set smartindent autoindent tabstop=2 expandtab shiftwidth=2 
+set laststatus=2 wildmenu wildmode=list:full directory=. listchars=tab:>-,eol:\
+set timeout timeoutlen=100 ttimeoutlen=500 
 if exists(":CocRestart")
   autocmd BufEnter *.svelte execute ":silent! CocRestart"
 endif
@@ -166,13 +171,18 @@ noremap <buffer> <nowait> <LEADER>+ <C-a>
 noremap <buffer> <nowait> <LEADER>- <C-x>
 augroup remember_folds
   autocmd!
-  au BufWinLeave ?* mkview 1
+  au BufWinLeave ?* silent! mkview 1
   au BufWinEnter ?* silent! loadview 1
 augroup END
 nnoremap <C-s> <ESC>:w<CR>
 inoremap <C-s> <ESC>:w<CR>
 nnoremap <C-q> <ESC>:bd!<CR>
 inoremap <C-q> <ESC>:bd!<CR>
+"let g:EditorConfig_verbose=1
+augroup _editorconfig
+autocmd BufEnter * :EditorConfigReload
+augroup END
+let g:svelte_indent_style = 0
 """ END OF OPTIONS
 
 
