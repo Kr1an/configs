@@ -162,6 +162,7 @@ set hlsearch incsearch relativenumber number hidden
 set smartindent autoindent tabstop=2 expandtab shiftwidth=2 
 set laststatus=2 wildmenu wildmode=list:full directory=. listchars=tab:>-,eol:\
 set timeout timeoutlen=100 ttimeoutlen=500 
+set list
 if exists(":CocRestart")
   autocmd BufEnter *.svelte execute ":silent! CocRestart"
 endif
@@ -178,11 +179,6 @@ nnoremap <C-s> <ESC>:w<CR>
 inoremap <C-s> <ESC>:w<CR>
 nnoremap <C-q> <ESC>:bd!<CR>
 inoremap <C-q> <ESC>:bd!<CR>
-"let g:EditorConfig_verbose=1
-augroup _editorconfig
-autocmd BufEnter * :EditorConfigReload
-augroup END
-let g:svelte_indent_style = 0
 """ END OF OPTIONS
 
 
@@ -198,6 +194,7 @@ hi Pmenu ctermfg=254 ctermbg=238
 hi PmenuSel ctermfg=254 ctermbg=242
 hi SignColumn ctermbg=232
 hi CocErrorSign ctermfg=203
+hi NonText ctermfg=236
 let lineNrBackground = 232
 let lineNrExtra = 240
 exe 'hi LineNr ctermfg=244 ctermbg=' . lineNrBackground
