@@ -161,15 +161,15 @@ set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8
 set hlsearch incsearch relativenumber number hidden
 set smartindent autoindent tabstop=2 expandtab shiftwidth=2 
 set laststatus=2 wildmenu wildmode=list:full directory=. listchars=tab:>-,eol:\
-set timeout timeoutlen=100 ttimeoutlen=500 
+"set timeout timeoutlen=100 ttimeoutlen=500 
 set list
 if exists(":CocRestart")
   autocmd BufEnter *.svelte execute ":silent! CocRestart"
 endif
 autocmd TermOpen term://* startinsert
 tnoremap <Esc> <C-\><C-n>
-noremap <buffer> <nowait> <LEADER>+ <C-a>
-noremap <buffer> <nowait> <LEADER>- <C-x>
+noremap <nowait> <LEADER>+ <C-a>
+noremap <nowait> <LEADER>- <C-x>
 augroup remember_folds
   autocmd!
   au BufWinLeave ?* silent! mkview 1
@@ -179,6 +179,20 @@ nnoremap <C-s> <ESC>:w<CR>
 inoremap <C-s> <ESC>:w<CR>
 nnoremap <C-q> <ESC>:bd!<CR>
 inoremap <C-q> <ESC>:bd!<CR>
+nnoremap <C-t> :tabnew<CR>
+nnoremap <Tab> :tabnext<CR>
+nnoremap <S-Tab> :tabprev<CR>
+nnoremap <M-1> 1gt
+nnoremap <M-2> 2gt
+nnoremap <M-3> 3gt
+nnoremap <M-4> 4gt
+nnoremap <M-5> 5gt
+nnoremap <M-6> 6gt
+nnoremap <M-7> 7gt
+nnoremap <M-8> 8gt
+nnoremap <M-9> 9gt
+nnoremap <M-0> :tablast<CR>
+nmap <C-p> :pop<CR>
 """ END OF OPTIONS
 
 
@@ -202,3 +216,4 @@ exe 'hi LineNrAbove ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
 exe 'hi LineNrBelow ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
 hi Constant ctermfg=144
 """ END OF COLORS
+
