@@ -23,6 +23,13 @@
       },
       "filetypes": [ "vim" ]
     },
+    "solc": {
+      "enable": true,
+      "command": "solc",
+      "args": ["--lsp"],
+      "filetypes": ["solidity"],
+      "trace.server": "verbose"
+    },
     "json": {
       "enable": false,
       "command": "vscode-json-languageserver",
@@ -31,7 +38,7 @@
       "trace.server": "verbose"
     },
     "typescript": {
-      "enable": true,
+      "enable": false,
       "command": "typescript-language-server",
       "args": [
         "--stdio",
