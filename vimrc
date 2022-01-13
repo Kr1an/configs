@@ -5,6 +5,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'evanleck/vim-svelte', {'branch': 'main'}
 Plug 'pangloss/vim-javascript'
+Plug 'tomlion/vim-solidity'
 call plug#end()
 """ END OF PLUG SECTION
 

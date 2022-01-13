@@ -1,6 +1,7 @@
 {
   "languageserver": {
     // npm i -g vim-language-server vscode-json-languageservice typescript-language-server svelte-language-server dockerfile-language-server-nodejs bash-language-server 
+    // install solc(not throw npm
     "vimls": {
       "command": "vim-language-server",
       "args": ["--stdio"],
@@ -22,6 +23,13 @@
         }
       },
       "filetypes": [ "vim" ]
+    },
+    "solc": {
+      "enable": true,
+      "command": "solc",
+      "args": ["--lsp"],
+      "filetypes": ["solidity"],
+      "trace.server": "verbose"
     },
     "json": {
       "enable": false,
