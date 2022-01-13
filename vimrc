@@ -181,20 +181,32 @@ nnoremap <C-s> <ESC>:w<CR>
 inoremap <C-s> <ESC>:w<CR>
 nnoremap <C-q> <ESC>:bd!<CR>
 inoremap <C-q> <ESC>:bd!<CR>
-nnoremap <C-t> :tabnew<CR>
-nnoremap <Tab> :tabnext<CR>
-nnoremap <S-Tab> :tabprev<CR>
+nnoremap <C-t> <ESC>:$tabnew<CR>
+nnoremap <M-=> :tabnext<CR>
+inoremap <M-=> <C-o>:tabnext<CR>
+nnoremap <M--> :tabprev<CR>
+inoremap <M--> <C-o>:tabprev<CR>
 nnoremap <M-1> 1gt
+inoremap <M-1> <C-o>1gt
 nnoremap <M-2> 2gt
+inoremap <M-2> <C-o>2gt
 nnoremap <M-3> 3gt
+inoremap <M-3> <C-o>3gt
 nnoremap <M-4> 4gt
+inoremap <M-4> <C-o>4gt
 nnoremap <M-5> 5gt
+inoremap <M-5> <C-o>5gt
 nnoremap <M-6> 6gt
+inoremap <M-6> <C-o>6gt
 nnoremap <M-7> 7gt
+inoremap <M-7> <C-o>7gt
 nnoremap <M-8> 8gt
+inoremap <M-8> <C-o>8gt
 nnoremap <M-9> 9gt
+inoremap <M-9> <C-o>9gt
 nnoremap <M-0> :tablast<CR>
-nmap <C-p> :pop<CR>
+inoremap <M-0> <C-o>:tablast<CR>
+"nmap <C-p> :pop<CR>
 """ END OF OPTIONS
 
 
@@ -218,4 +230,6 @@ exe 'hi LineNrAbove ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
 exe 'hi LineNrBelow ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
 hi Constant ctermfg=144
 """ END OF COLORS
+
+
 
