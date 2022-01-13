@@ -1,9 +1,10 @@
 """ PLUG SECTION
 call plug#begin('~/.vim/plugged')
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'evanleck/vim-svelte', {'branch': 'main'}
 Plug 'airblade/vim-gitgutter'
 Plug 'editorconfig/editorconfig-vim'
+Plug 'evanleck/vim-svelte', {'branch': 'main'}
+Plug 'pangloss/vim-javascript'
 call plug#end()
 """ END OF PLUG SECTION
 
@@ -154,14 +155,15 @@ endfunction
 
 """ OPTIONS SECTION
 " This section sets various global options. 
-filetype plugin indent on
+filetype on
+filetype plugin on
+filetype indent off
 syntax on
 set wrap isfname+=@-@ nofixendofline foldcolumn=auto
 set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8
 set hlsearch incsearch relativenumber number hidden
-set smartindent autoindent tabstop=2 expandtab shiftwidth=2 
+set autoindent tabstop=4 expandtab shiftwidth=4 
 set laststatus=2 wildmenu wildmode=list:full directory=. listchars=tab:>-,eol:\
-"set timeout timeoutlen=100 ttimeoutlen=500 
 set list
 if exists(":CocRestart")
   autocmd BufEnter *.svelte execute ":silent! CocRestart"
