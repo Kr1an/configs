@@ -31,13 +31,13 @@
       "trace.server": "verbose"
     },
     "typescript": {
-      "enable": true,
+      "enable": false,
       "command": "typescript-language-server",
       "args": [
-        "--stdio",
-        "--tsserver-log-file=/tmp/ts-lsp-logs.txt",
-        "--tsserver-log-verbosity=verbose",
-        "--log-level=4"
+        "--stdio"
+        //"--tsserver-log-file=/tmp/ts-lsp-logs.txt",
+        //"--tsserver-log-verbosity=verbose",
+        //"--log-level=4"
       ],
       "filetypes": [
         "typescript",
@@ -65,7 +65,8 @@
       "filetypes": ["svelte"],
       "args": [
         "-c",
-        "svelteserver --stdio | tee -a /tmp/svelte-lsp-logs.txt"
+        "svelteserver --stdio"
+        //"svelteserver --stdio | tee -a /tmp/svelte-lsp-logs.txt"
       ],
       "trace.server": "verbose",
       "initializationOptions": {
