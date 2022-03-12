@@ -1,6 +1,7 @@
+# Terminal should be restarted for changes to take affect.
 xterm*faceName: NovaMono
 xterm*allowBoldFonts: false
-xterm*faceSize: 16
+xterm*faceSize: 14
 xterm*foreground: white
 xterm*background: black
 xterm*selectToClipboard: true
