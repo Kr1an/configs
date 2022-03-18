@@ -121,6 +121,71 @@ endfunction
 
 
 
+""" GIT BLAME PLUGIN SECTION
+" Show last commit message of current line
+let g:gitBlamePluginEnabled = 1
+let g:gitBlameNSId = nvim_create_namespace('git blame plugin')
+let g:gitBlameMarkId = 873
+function DisableGitBlame()
+    if exists('#GitBlame#CursorHold')
+        autocmd! GitBlame CursorHold *
+        autocmd! GitBlame CursorHoldI *
+    endif
+    call nvim_buf_del_extmark(bufnr('%'), g:gitBlameNSId, g:gitBlameMarkId)
+endfunction
+function EnableGitBlame()
+    call DisableGitBlame()
+    augroup GitBlame 
+        autocmd CursorHold * call DisplayGitBlame()
+        autocmd CursorHoldI * call DisplayGitBlame()
+    augroup END
+endfunction
+function ToggleGitBlame()
+    if exists('#GitBlame#CursorHold')
+        call DisableGitBlame()
+    else
+        call EnableGitBlame()
+    endif
+endfunction
+if g:gitBlamePluginEnabled
+    call EnableGitBlame()
+else
+    call DisableGitBlame()
+endif
+function DisplayGitBlame()
+    let curBufPath = expand('%:p')
+    if
+        \ &buftype ==# 'terminal' ||
+        \ !filereadable(curBufPath) ||
+        \ getbufinfo('%')[0].changed
+        return RemoveGitBlameMark()
+    endif
+    let gitDirPath = trim(system('cd ' . expand('%:p:h') . ' && ' . 'git rev-parse --absolute-git-dir'))
+    if v:shell_error != 0
+        return RemoveGitBlameMark()
+    endif
+    let curLine = line('.')
+    let gitBlameCmd = 'git --git-dir=' . gitDirPath . ' blame --porcelain -L ' . curLine . ',' . curLine . ' ' . curBufPath
+    let result = systemlist(gitBlameCmd)
+    if v:shell_error != 0
+        return RemoveGitBlameMark()
+    endif
+    let commitHash = result[0][0:4]
+    let author = substitute(result[1], 'author ', '', '')[0:10]
+    let msg = substitute(result[9], 'summary ', '', '')[0:15]
+    let time = substitute(result[3], 'author-time ', '', '')
+    let dateTimeStr = trim(system('date -d @' . time . ' +%e.%m.%g'))
+    let textToDisplay = dateTimeStr . '|' . author . '|' . msg . '(' . commitHash . ')'
+    call RemoveGitBlameMark()
+    let opts = { 'id': g:gitBlameMarkId, 'virt_text': [[textToDisplay, "LineNrBelow"]] }
+    call nvim_buf_set_extmark(bufnr('%'), g:gitBlameNSId, curLine-1, -1, opts)
+endfunction
+function RemoveGitBlameMark()
+    call nvim_buf_del_extmark(bufnr('%'), g:gitBlameNSId, g:gitBlameMarkId)
+endfunction
+""" End of git blame plugin
+
+
 
 """ COC CONFIGURATION
 " This section sets some of the mappings from coc.nvim extension
