@@ -3,7 +3,6 @@ call plug#begin('~/.vim/plugged')
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'airblade/vim-gitgutter'
 Plug 'editorconfig/editorconfig-vim'
-Plug 'evanleck/vim-svelte', {'branch': 'main'}
 Plug 'pangloss/vim-javascript'
 Plug 'tomlion/vim-solidity'
 call plug#end()
@@ -231,9 +230,10 @@ set hlsearch incsearch relativenumber number hidden
 set autoindent tabstop=4 expandtab shiftwidth=4 
 set laststatus=2 wildmenu wildmode=list:full directory=. listchars=tab:>-,eol:\
 set list
-if exists(":CocRestart")
-  autocmd BufEnter *.svelte execute ":silent! CocRestart"
-endif
+autocmd BufEnter *.svelte execute ":set syntax=html"
+"if exists(":CocRestart")
+"  autocmd BufEnter *.svelte execute ":silent! CocRestart"
+"endif
 autocmd TermOpen term://* startinsert
 tnoremap <Esc> <C-\><C-n>
 noremap <nowait> <LEADER>+ <C-a>
