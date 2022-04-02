@@ -32,20 +32,21 @@ function StartBashAsFSExplorer()
   call feedkeys("ls\<CR>")
 endfunction
 function SyncTerminalPath()
-  let markerForCurrentPWD = "__bash_explorer__"
   let terminalBufferNumber = bufnr()
   let info = getbufinfo(terminalBufferNumber)
   let title = info[0].variables.term_title
   let pwd = substitute(title, "^.*:", "", "")
   let pwd = substitute(pwd, "^\\s", "", "")
-  let pathComponents = split(&path, ",")
-  let markerIndex = index(pathComponents, markerForCurrentPWD)
-  if markerIndex == -1
-    let pathComponents += [markerForCurrentPWD, ""]
+  let pwd = substitute(pwd, "[[:cntrl:]].*$", "", "g")
+  let pwd = substitute(pwd, "\n.*$", "", "")
+  let pwd = expand(pwd)
+  if exists("g:SyncTerminalPwd__LastPathValue")
+    exec "set path-=" . g:SyncTerminalPwd__LastPathValue
   endif
-  let markerIndex = index(pathComponents, markerForCurrentPWD)
-  let pathComponents[markerIndex + 1] = expand(pwd)
-  let &path = join(pathComponents, ",") . ","
+  let pathComponents = split(&path, ",")
+  let newPathComponents = [pwd] + pathComponents
+  let &path = join(newPathComponents, ",")
+  let g:SyncTerminalPwd__LastPathValue = pwd
 endfunction
 """ END OF BASH AS FILE EXPLORER
 
@@ -122,7 +123,7 @@ endfunction
 
 """ GIT BLAME PLUGIN SECTION
 " Show last commit message of current line
-let g:gitBlamePluginEnabled = 1
+let g:gitBlamePluginEnabled = 0
 let g:gitBlameNSId = nvim_create_namespace('git blame plugin')
 let g:gitBlameMarkId = 873
 function DisableGitBlame()
