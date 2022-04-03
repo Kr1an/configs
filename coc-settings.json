@@ -31,6 +31,13 @@
       "filetypes": ["solidity"],
       "trace.server": "verbose"
     },
+    "lua": {
+      "enable": true,
+      "command": "lua-language-server",
+      "args": ["--lsp"],
+      "filetypes": ["lua"],
+      "trace.server": "verbose"
+    },
     "json": {
       "enable": false,
       "command": "vscode-json-languageserver",
