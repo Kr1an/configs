@@ -1,17 +1,24 @@
 home_dir=$HOME
-cur_dir=pwd
+cur_dir=$(pwd)
 
-mv -f $home_dir/.tmux.conf $home_dir/.tmux.conf.DEP
+# tmux
+mv -f $home_dir/.tmux.conf $home_dir/.tmux.conf.DEP 2> /dev/null
 ln -s $cur_dir/tmux.conf $home_dir/.tmux.conf
 
-mv -f $home_dir/.bashrc $home_dir/.bashrc.DEP
+# bashrc
+mv -f $home_dir/.bashrc $home_dir/.bashrc.DEP 2> /dev/null
 ln -s $cur_dir/bashrc $home_dir/.bashrc
 
-mv -f $home_dir/.vimrc $home_dir/.vimrc.DEP
-ln -s $cur_dir/vimrc $home_dir/.config/nvim/init.vim
+# nvim
+nvim_dir=$home_dir/.config/nvim
+mv -f $nvim_dir/init.vim $nvim_dir/init.vim.DEP 2> /dev/null
+ln -s $cur_dir/vim.vim $nvim_dir/init.vim
+mkdir -p $nvim_dir/lua
+mv -f $nvim_dir/lua/setup-nvim.lua $nvim_dir/lua/setup-nvim.lua.DEP 2> /dev/null
+ln -s $cur_dir/vim.lua $nvim_dir/lua/setup-nvim.lua
+mv -f $nvim_dir/coc-settings.json $nvim_dir/coc-settings.json.DEP 2> /dev/null
+ln -s $cur_dir/coc-settings.json $nvim_dir/coc-settings.json
 
-mv -f $home_dir/.config/nvim/coc-settings $home_dir/.config/nvim/coc-settings.json.DEP
-ln -s $cur_dir/coc-settings.json $home_dir/.config/nvim/coc-settings.json
-
-mv -f $home_dir/.Xresources $home_dir/.Xresources.DEP
+# xterm
+mv -f $home_dir/.Xresources $home_dir/.Xresources.DEP 2> /dev/null
 ln -s $cur_dir/xterm $home_dir/.Xresources
