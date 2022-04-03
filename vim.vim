@@ -299,4 +299,5 @@ hi Constant ctermfg=144
 """ END OF COLORS
 
 
-
+""" LUA  NVIM SETUP
+lua require('setup-nvim')
