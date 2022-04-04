@@ -1,13 +1,45 @@
+""" LUA  NVIM SETUP
+" first unload current lua config
+lua package.loaded['setup-nvim'] = nil
+" then load new config
+lua require('setup-nvim')
+""" END OF LUA NVIM SETUP
+
+
+""" Packer SECTION
+"call plug#begin('~/.vim/plugged')
+"Pack 'airblade/vim-gitgutter'
+"Pack 'editorconfig/editorconfig-vim'
+"Pack 'pangloss/vim-javascript'
+"Pack 'tomlion/vim-solidity'
+"Pack 'neovim/nvim-lspconfig'
+"Pack 'hrsh7th/nvim-cmp'
+"Pack 'hrsh7th/cmp-nvim-lsp'
+"Pack 'saadparwaiz1/cmp_luasnip'
+"Pack 'L3MON4D3/LuaSnip'
+"
+"Plug 'ms-jpq/coq_nvim', { 'run': 'python3 -m coq deps' }
+"Plug 'ms-jpq/coq.artifacts'
+"Plug 'ms-jpq/coq.thirdparty'
+"call plug#end()
+""" END OF Packer SECTION
+
 """ PLUG SECTION
-call plug#begin('~/.vim/plugged')
-Plug 'airblade/vim-gitgutter'
-Plug 'editorconfig/editorconfig-vim'
-Plug 'pangloss/vim-javascript'
-Plug 'tomlion/vim-solidity'
-Plug 'neovim/nvim-lspconfig'
-Plug 'hrsh7th/nvim-cmp'
-Plug 'hrsh7th/cmp-nvim-lsp'
-call plug#end()
+"call plug#begin('~/.vim/plugged')
+"Plug 'airblade/vim-gitgutter'
+"Plug 'editorconfig/editorconfig-vim'
+"Plug 'pangloss/vim-javascript'
+"Plug 'tomlion/vim-solidity'
+"Plug 'neovim/nvim-lspconfig'
+"Plug 'hrsh7th/nvim-cmp'
+"Plug 'hrsh7th/cmp-nvim-lsp'
+"Plug 'saadparwaiz1/cmp_luasnip'
+"Plug 'L3MON4D3/LuaSnip'
+"
+"Plug 'ms-jpq/coq_nvim', { 'run': 'python3 -m coq deps' }
+"Plug 'ms-jpq/coq.artifacts'
+"Plug 'ms-jpq/coq.thirdparty'
+"call plug#end()
 """ END OF PLUG SECTION
 
 
@@ -201,6 +233,8 @@ set hlsearch incsearch relativenumber number hidden
 set autoindent tabstop=4 expandtab shiftwidth=4 
 set laststatus=2 wildmenu wildmode=list:full directory=. listchars=tab:>-,eol:\
 set list
+set signcolumn=yes
+set updatetime=300
 autocmd BufEnter *.svelte execute ":set syntax=html"
 autocmd TermOpen term://* startinsert
 tnoremap <Esc> <C-\><C-n>
@@ -266,11 +300,5 @@ hi Constant ctermfg=144
 
 
 
-""" LUA  NVIM SETUP
-" first unload current lua config
-lua package.loaded['setup-nvim'] = nil
-" then load new config
-lua require('setup-nvim')
-""" END OF LUA NVIM SETUP
 
 

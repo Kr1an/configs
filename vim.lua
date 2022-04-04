@@ -1,4 +1,24 @@
+require('packer').startup(function()
+    use 'wbthomason/packer.nvim'
+    use 'airblade/vim-gitgutter'
+    use 'editorconfig/editorconfig-vim'
+    use 'pangloss/vim-javascript'
+    use 'tomlion/vim-solidity'
+    use 'neovim/nvim-lspconfig'
+    use 'hrsh7th/nvim-cmp'
+    use 'hrsh7th/cmp-nvim-lsp'
+    use 'saadparwaiz1/cmp_luasnip'
+    use 'L3MON4D3/LuaSnip'
+
+    use { 'ms-jpq/coq_nvim', run = 'python3.8 -m coq deps' }
+    use 'ms-jpq/coq.artifacts'
+    use 'ms-jpq/coq.thirdparty'
+end)
+
+
 local lspconfig = require('lspconfig')
+local luasnip = require('luasnip')
+local coq = require('coq')
 local vim = assert(vim)
 
 --- UTILITY FUNCTION TO INSPECT TABLE
@@ -85,7 +105,9 @@ local on_attach = function(client, bufnr)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  --vim.cmd [[autocmd CursorHoldI * silent! lua vim.lsp.buf.signature_help()]]
 end
+
 
 
 -- Add additional capabilities supported by nvim-cmp
@@ -99,24 +121,40 @@ capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 local servers = {
   'tsserver',
   'bashls',
-  'sumneko_lua',
-  'omnisharp',
+  --'sumneko_lua',
+  --'omnisharp',
   'vimls',
   'solc',
   'jsonls',
   'dockerls',
   'svelte',
 }
-for _, lsp in pairs(servers) do
-  require('lspconfig')[lsp].setup {
+
+-- Automatically start coq
+vim.g.coq_settings = { auto_start = 'shut-up' }
+
+-- Enable some language servers with the additional completion capabilities offered by coq_nvim
+--local servers = { 'clangd', 'rust_analyzer', 'pyright', 'tsserver' }
+for _, lsp in ipairs(servers) do
+  lspconfig[lsp].setup(coq.lsp_ensure_capabilities({
     on_attach = on_attach,
     flags = {
       -- This will be the default in neovim 0.7+
       debounce_text_changes = 150,
     },
-    capabilities = capabilities,
-  }
+  }))
 end
+
+--for _, lsp in pairs(servers) do
+--  lspconfig[lsp].setup {
+--    on_attach = on_attach,
+--    flags = {
+--      -- This will be the default in neovim 0.7+
+--      debounce_text_changes = 150,
+--    },
+--    capabilities = capabilities,
+--  }
+--end
 
 
 -- nvim-cmp setup.
@@ -124,6 +162,11 @@ end
 -- for autocompletion.
 local cmp = require('cmp')
 cmp.setup {
+  snippet = {
+    expand = function(args)
+      require('luasnip').lsp_expand(args.body)
+    end,
+  },
   mapping = {
     ['<C-p>'] = cmp.mapping.select_prev_item(),
     ['<C-n>'] = cmp.mapping.select_next_item(),
@@ -135,8 +178,27 @@ cmp.setup {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     }),
+    ['<Tab>'] = function(fallback)
+      if cmp.visible() then
+        cmp.select_next_item()
+      elseif luasnip.expand_or_jumpable() then
+        luasnip.expand_or_jump()
+      else
+        fallback()
+      end
+    end,
+    ['<S-Tab>'] = function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item()
+      elseif luasnip.jumpable(-1) then
+        luasnip.jump(-1)
+      else
+        fallback()
+      end
+    end,
   },
   sources = {
     { name = 'nvim_lsp' },
+    { name = 'luasnip' }
   },
 }
