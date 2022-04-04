@@ -1,10 +1,12 @@
 """ PLUG SECTION
 call plug#begin('~/.vim/plugged')
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'airblade/vim-gitgutter'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'pangloss/vim-javascript'
 Plug 'tomlion/vim-solidity'
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-nvim-lsp'
 call plug#end()
 """ END OF PLUG SECTION
 
@@ -187,38 +189,6 @@ endfunction
 
 
 
-""" COC CONFIGURATION
-" This section sets some of the mappings from coc.nvim extension
-" https://github.com/neoclide/coc.nvim
-let g:coc_global_extensions = ['coc-json', 'coc-tsserver', 'coc-omnisharp']
-set updatetime=300
-set shortmess+=c
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-inoremap <silent><expr> <c-space> coc#refresh()
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm(): "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-nnoremap <silent> K :call <SID>show_documentation()<CR>
-autocmd CursorHold * silent call CocActionAsync('highlight')
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
-    call CocActionAsync('doHover')
-  else
-    execute '!' . &keywordprg . " " . expand('<cword>')
-  endif
-endfunction
-""" END OF COC CONFIGURATION
-
-
-
-
-
 """ OPTIONS SECTION
 " This section sets various global options. 
 filetype on
@@ -232,9 +202,6 @@ set autoindent tabstop=4 expandtab shiftwidth=4
 set laststatus=2 wildmenu wildmode=list:full directory=. listchars=tab:>-,eol:\
 set list
 autocmd BufEnter *.svelte execute ":set syntax=html"
-"if exists(":CocRestart")
-"  autocmd BufEnter *.svelte execute ":silent! CocRestart"
-"endif
 autocmd TermOpen term://* startinsert
 tnoremap <Esc> <C-\><C-n>
 noremap <nowait> <LEADER>+ <C-a>
@@ -288,7 +255,6 @@ hi Normal ctermfg=15 ctermbg=16
 hi Pmenu ctermfg=254 ctermbg=238
 hi PmenuSel ctermfg=254 ctermbg=242
 hi SignColumn ctermbg=232
-hi CocErrorSign ctermfg=203
 hi NonText ctermfg=236
 let lineNrBackground = 232
 let lineNrExtra = 240
@@ -299,5 +265,12 @@ hi Constant ctermfg=144
 """ END OF COLORS
 
 
+
 """ LUA  NVIM SETUP
+" first unload current lua config
+lua package.loaded['setup-nvim'] = nil
+" then load new config
 lua require('setup-nvim')
+""" END OF LUA NVIM SETUP
+
+

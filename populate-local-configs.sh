@@ -16,8 +16,6 @@ ln -s $cur_dir/vim.vim $nvim_dir/init.vim
 mkdir -p $nvim_dir/lua
 mv -f $nvim_dir/lua/setup-nvim.lua $nvim_dir/lua/setup-nvim.lua.DEP 2> /dev/null
 ln -s $cur_dir/vim.lua $nvim_dir/lua/setup-nvim.lua
-mv -f $nvim_dir/coc-settings.json $nvim_dir/coc-settings.json.DEP 2> /dev/null
-ln -s $cur_dir/coc-settings.json $nvim_dir/coc-settings.json
 
 # xterm
 mv -f $home_dir/.Xresources $home_dir/.Xresources.DEP 2> /dev/null
