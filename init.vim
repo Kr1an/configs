@@ -1,14 +1,43 @@
 """ PLUG SECTION
 call plug#begin('~/.vim/plugged')
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
 Plug 'airblade/vim-gitgutter'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'pangloss/vim-javascript'
 Plug 'tomlion/vim-solidity'
+
+" lsp 
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-vsnip'
+Plug 'hrsh7th/vim-vsnip'
+
+" lint
+Plug 'mfussenegger/nvim-lint'
+
 call plug#end()
 """ END OF PLUG SECTION
 
+augroup haml
+  autocmd!
+  autocmd FileType haml inorea <buffer> 
+    \ table %table<CR>%thead<CR>%tr<CR>%th {%header row%}<CR><BS><BS>%tbody<CR>%tr<CR>%td {%body row%}
+augroup END
+nnoremap <Plug>GoToNextPlaceholder :call search('{%[^%]*%}')<CR>va{
+imap <silent> <C-q><C-e> <C-v><C-a><C-]><Esc><Plug>GoToNextPlaceholder
+nmap <silent> <C-q><C-q> <Plug>GoToNextPlaceholder
 
+
+
+
+
+
+imap <silent> <C-q><C-q> <Esc><Plug>GoToNextPlaceholder
+vmap <silent> <C-q><C-q> <Esc><Plug>GoToNextPlaceholder
 
 """ BASH AS FILE EXPLORER
 " This section adds keybinding to open terminal enchanced with some triks:
@@ -16,6 +45,7 @@ call plug#end()
 "   under cursor. No global PWD manipulations.
 " - The terminal is hidden from the visible buffers list(:ls).
 " - The terminal is opened in current file directory. Ex:
+
 "   if you are editing ~/test/text.txt, it will be
 "   opened in ~/test/.
 " - When opened, 'ls' command is issued automatically.
@@ -27,8 +57,8 @@ function StartBashAsFSExplorer()
   let cdCmd = "cd " . curFileDir . "\<CR>"
   call feedkeys(cdCmd)
   au CursorMoved <buffer> if &buftype == 'terminal' | call SyncTerminalPath()
-  set nobuflisted noswapfile
-  autocmd BufEnter,BufLeave <buffer> set nobuflisted noswapfile
+  setl nobuflisted noswapfile
+  autocmd BufEnter,BufLeave <buffer> setl nobuflisted noswapfile
   call feedkeys("ls\<CR>")
 endfunction
 function SyncTerminalPath()
@@ -91,8 +121,8 @@ function StartFzf(withRg)
   if a:withRg | let g:cmd = g:rgCmd . ' | ' . g:fzfCmd | endif
   execute ' terminal bash -c $''' . g:cmd . '  '' > ' . g:fzfTmpFile
   autocmd TermClose <buffer> ++nested execute ':call WhenTermProcessFinished()'
-  set nobuflisted noswapfile
-  autocmd BufEnter,BufLeave <buffer> set nobuflisted noswapfile
+  setl nobuflisted noswapfile
+  autocmd BufEnter,BufLeave <buffer> setl nobuflisted noswapfile
 endfunction
 function WhenTermProcessFinished()
   let tmpFileLineList = readfile(g:fzfTmpFile)
@@ -187,50 +217,22 @@ endfunction
 
 
 
-""" COC CONFIGURATION
-" This section sets some of the mappings from coc.nvim extension
-" https://github.com/neoclide/coc.nvim
-let g:coc_global_extensions = ['coc-json', 'coc-tsserver', 'coc-omnisharp']
-set updatetime=300
-set shortmess+=c
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-inoremap <silent><expr> <c-space> coc#refresh()
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm(): "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-nnoremap <silent> K :call <SID>show_documentation()<CR>
-autocmd CursorHold * silent call CocActionAsync('highlight')
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
-    call CocActionAsync('doHover')
-  else
-    execute '!' . &keywordprg . " " . expand('<cword>')
-  endif
-endfunction
-""" END OF COC CONFIGURATION
-
-
-
 
 
 """ OPTIONS SECTION
 " This section sets various global options. 
 filetype on
-filetype plugin on
+filetype plugin off
 filetype indent off
 syntax on
 set wrap isfname+=@-@ nofixendofline foldcolumn=auto
 set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8
 set hlsearch incsearch relativenumber number hidden
-set autoindent tabstop=4 expandtab shiftwidth=4 
+set autoindent tabstop=2 expandtab shiftwidth=2 
 set laststatus=2 wildmenu wildmode=list:full directory=. listchars=tab:>-,eol:\
 set list
+set updatetime=300
+set signcolumn=yes
 autocmd BufEnter *.svelte execute ":set syntax=html"
 "if exists(":CocRestart")
 "  autocmd BufEnter *.svelte execute ":silent! CocRestart"
@@ -239,11 +241,11 @@ autocmd TermOpen term://* startinsert
 tnoremap <Esc> <C-\><C-n>
 noremap <nowait> <LEADER>+ <C-a>
 noremap <nowait> <LEADER>- <C-x>
-augroup remember_folds
-  autocmd!
-  au BufWinLeave ?* silent! mkview 1
-  au BufWinEnter ?* silent! loadview 1
-augroup END
+" augroup remember_folds
+"   autocmd!
+"   au BufWinLeave ?* silent! mkview 1
+"   au BufWinEnter ?* silent! loadview 1
+" augroup END
 nnoremap <C-s> <ESC>:w<CR>
 inoremap <C-s> <ESC>:w<CR>
 nnoremap <C-q> <ESC>:bd!<CR>
@@ -277,26 +279,63 @@ inoremap <M-0> <C-o>:tablast<CR>
 """ END OF OPTIONS
 
 
+""" VSNIP
+" Expand
+imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+" Expand or jump
+imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+" Jump forward or backward
+imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+" Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
+" See https://github.com/hrsh7th/vim-vsnip/pull/50
+nmap        s   <Plug>(vsnip-select-text)
+xmap        s   <Plug>(vsnip-select-text)
+nmap        S   <Plug>(vsnip-cut-text)
+xmap        S   <Plug>(vsnip-cut-text)
+" If you want to use snippet for multiple filetypes, you can `g:vsnip_filetypes` for it.
+let g:vsnip_filetypes = {}
+let g:vsnip_filetypes.javascriptreact = ['javascript']
+let g:vsnip_filetypes.typescriptreact = ['typescript']
+""" END OF VSNIP
+
+
 
 """ COLORS
 " This section configures color theme.
 " Its base on dark background and set black background as well.
 " - system requirenments: [xterm-256-colors] should be enabled.
-"colorscheme default
-"set background=dark
-"hi Normal ctermfg=15 ctermbg=16
-"hi Pmenu ctermfg=254 ctermbg=238
-"hi PmenuSel ctermfg=254 ctermbg=242
-"hi SignColumn ctermbg=232
-"hi CocErrorSign ctermfg=203
-"hi NonText ctermfg=236
-"let lineNrBackground = 232
-"let lineNrExtra = 240
-"exe 'hi LineNr ctermfg=244 ctermbg=' . lineNrBackground
-"exe 'hi LineNrAbove ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
-"exe 'hi LineNrBelow ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
-"hi Constant ctermfg=144
+colorscheme default
+set background=dark
+hi Normal ctermfg=15 ctermbg=16
+hi Pmenu ctermfg=254 ctermbg=238
+hi PmenuSel ctermfg=254 ctermbg=242
+hi SignColumn ctermbg=232
+hi CocErrorSign ctermfg=203
+hi NonText ctermfg=236
+hi LspReferenceText ctermbg=244
+hi LspReferenceRead ctermbg=240
+hi LspReferenceWrite ctermbg=240
+let lineNrBackground = 232
+let lineNrExtra = 240
+exe 'hi LineNr ctermfg=244 ctermbg=' . lineNrBackground
+exe 'hi LineNrAbove ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
+exe 'hi LineNrBelow ctermfg=' . lineNrExtra . ' ctermbg=' . lineNrBackground
+hi Constant ctermfg=144
 """ END OF COLORS
 
+lua package.loaded['init'] = nil
+lua require('init')
 
+let $NODE_CLIENT_LOG_LEVEL = 'debug'
+let $NODE_CLIENT_LOG_FILE = '/tmp/coc-lsp-logs.txt'
+
+"au CursorHold * lua require('lint').try_lint()
+"au CursorHoldI * lua require('lint').try_lint()
+au BufWritePost * lua require('lint').try_lint()
+"au CursorHold * lua vim.diagnostic.open_float()
 

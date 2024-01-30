@@ -1,0 +1,124 @@
+snippet doc "tsdoc comments"
+/**
+ * $1
+ */
+endsnippet
+
+snippet cls "class"
+class ${1:Class} {
+	$2
+}
+endsnippet
+
+
+snippet con "console.log" i
+console.log($1)$2
+endsnippet
+
+snippet err "console.error" i
+console.error($1)$2
+endsnippet
+
+snippet warn "console.warn" i
+console.warn($1)$2
+endsnippet
+
+
+snippet forof "for-of loop"
+for (const ${2:item} of ${1:array}) {
+	${3:console.log('in the loop')}
+}
+endsnippet
+
+snippet for "for loop"
+for (let ${1:i} = 0; $1 < ${2:length}; ${3:$1++}) {
+	${4:console.log('in the loop')}
+}
+endsnippet
+
+snippet meth "class method"
+${1}${2:methodName}(${3:...args}) {
+	${4:throw new Error('$2 not implemented')}
+}
+endsnippet
+
+snippet fun "function"
+$1function ${2:fnName}(${3:...args}) {
+	${4:throw new Error('$2 not implemented')}
+}
+endsnippet
+
+snippet gen "function"
+function* ${2:genName}(${3:...args}) {
+	${4:throw new Error('$2 not implemented')}
+}
+endsnippet
+
+snippet => "lambda function" i
+$1(${2:...args})$3 => $4
+endsnippet
+
+snippet if "if statement"
+if ($1) {
+	$2
+}
+endsnippet
+
+snippet impd "import default"
+import ${2:what} from '${1:./fromFile}';
+endsnippet
+snippet imp "import non default"
+import { ${2:...what} } from '${1:./fromFile}';
+endsnippet
+
+snippet expd "export default"
+export ${2:what} from '${1:./fromFile}';
+endsnippet
+snippet exp "export non default"
+export { ${2:...what} } from '${1:./fromFile}';
+endsnippet
+
+snippet jsons "JSON.stringify" i
+JSON.stringify($1)$2
+endsnippet
+
+snippet jsonp "JSON.stringify" i
+JSON.parse($1)$2
+endsnippet
+
+snippet try "Try Catch"
+try {
+	${1}
+} catch (e) {
+
+}
+endsnippet
+
+snippet tryf "Try Catch"
+try {
+	${1}
+} catch (e) {
+
+} finally {
+
+}
+endsnippet
+
+snippet nullif "Return null if"
+if (${1}) {
+    ${2:return null;}
+}
+endsnippet
+
+snippet un "undefined"
+undefined
+endsnippet
+
+snippet wait "Wait for time async"
+await new Promise(res => setTimeout(res, ${1:1000}));
+
+endsnippet
+
+snippet thr "Throw error"
+throw new Error('${1:Error}')
+endsnippet

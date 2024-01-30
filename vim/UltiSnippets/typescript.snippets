@@ -1,0 +1,20 @@
+extends javascript
+
+snippet int "interface"
+interface ${1:Interfac} {
+	$2
+}
+endsnippet
+
+snippet tsi "ts ignore"
+// @ts-ignore
+endsnippet
+
+snippet testp "test performane"
+var start = Date.now();
+for (let i = 0; i < length; i++) {
+	console.log('test')
+}
+console.log('elapsed', Date.now() - start)
+endsnippet
+

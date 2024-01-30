@@ -1,13 +1,34 @@
-# Terminal should be restarted for changes to take affect.
+! Terminal should be restarted for changes to take affect.
 xterm*faceName: NovaMono
-xterm*allowBoldFonts: false
 xterm*faceSize: 14
-xterm*foreground: white
-xterm*background: black
-xterm*selectToClipboard: true
+xterm*allowBoldFonts: false
+
+
 xterm*termName: xterm-256color
+XTerm*metaSendsEscape: true
+
+!! Enable copypast
+! ctrl+c - ctrl+v shortcuts
 XTerm*vt100.translations: #override \
     Shift Ctrl <Key> C: copy-selection(CLIPBOARD) \n\
     Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
-XTerm*metaSendsEscape: true
+! copy selected area
+xterm*selectToClipboard: true
+
+
+!!!!!!!!!!!!!!!!!!
+!! Color themes !!
+!!!!!!!!!!!!!!!!!!
+
+!! remove one level of comments to enable specific theme
+
+! Dark theme
+xterm*background: white 
+xterm*foreground: black
+xterm*color12: #36cf5e
+xterm*color4: #36cf5e
+
+!! Dark theme
+!xterm*background: white
+!xterm*foreground: black 
 
