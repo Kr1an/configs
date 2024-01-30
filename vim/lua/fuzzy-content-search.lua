@@ -192,5 +192,5 @@ end
 
 
 
-vim.api.nvim_set_keymap('n', '<space>r', ':lua FuzzyContentSearch.openSearch(false)<enter>', {})
-vim.api.nvim_set_keymap('n', '<space>R', ':lua FuzzyContentSearch.openSearch(true)<enter>', {})
+-- vim.api.nvim_set_keymap('n', '<space>r', ':lua FuzzyContentSearch.openSearch(false)<enter>', {})
+-- vim.api.nvim_set_keymap('n', '<space>R', ':lua FuzzyContentSearch.openSearch(true)<enter>', {})

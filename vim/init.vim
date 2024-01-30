@@ -15,13 +15,7 @@ Plug 'neovim/nvim-lspconfig'
   
 Plug 'SirVer/ultisnips'
 
-
-Plug 'junegunn/fzf'
-
 call plug#end()
-
-lua package.loaded['init'] = nil
-lua require('init')
 
 command! VO :edit ~/.config/nvim/init.vim
 command! LO :edit ~/.config/nvim/lua/init.lua
@@ -133,7 +127,7 @@ syntax on
 set nowrap
 set isfname+=@-@ nofixendofline foldcolumn=0
 set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8
-set hlsearch incsearch hidden relativenumber number 
+set hlsearch incsearch hidden "relativenumber number 
 set autoindent tabstop=4 expandtab shiftwidth=4
 set wildmenu wildmode=list:full directory=.
 set listchars=tab:\\x20\\x20,eol:\
@@ -231,7 +225,7 @@ let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<m-j>"
 let g:UltiSnipsJumpBackwardTrigger="<m-k>"
 let g:UltiSnipsEditSplit="vertical"
-let g:UltiSnipsSnippetDirectories=["UltiSnips", "my_snippets"]
+let g:UltiSnipsSnippetDirectories=["UltiSnippets"]
 
 """""""""""""""""" Sealed secrets""""""""""""""
 
@@ -306,5 +300,6 @@ let g:taboo_tab_format = " %f%I "
 " :w !gpg -o ~/save/to/file -c
 
 
+lua require('init')
 source ~/.config/nvim/fzf-file-path.vim
 source ~/.config/nvim/fzf-file-content.vim
