@@ -27,5 +27,5 @@ vim.lsp.handlers["textDocument/hover"] = function(err, result)
 
 
     vim.api.nvim_command('call QuickPreview(g:quickPreviewToShowText)')
-    -- vim.api.nvim_command('call CreatePreviewCloseAugroup()')
+    vim.api.nvim_command('call CreatePreviewCloseAugroup()')
 end

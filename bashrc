@@ -174,6 +174,10 @@ export PATH="$PNPM_HOME:$PATH"
 #kubectl port-forward <pod-name> 28015:27017
 #aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin aws_account_id.dkr.ecr.region.amazonaws.com
 
+## run ts-node with debugger
+## nodemon --exec "node --inspect --require ts-node/register download-all-annual-reports.ts"
+## node --inspect -r ts-node/register/transpile-only index.ts
+
 
 # install all language servers:
 # ni -g vscode-json-languageserver typescript-language-server

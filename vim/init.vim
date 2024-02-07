@@ -69,58 +69,7 @@ hi! link LspSignatureActiveParameter Search
 "hi! link FloatBorder SpecialKey
 hi! link LspInfoBorder SpecialKey
 
-function TriggerHoverInPopUp()
-  if &filetype =~ 'tf\|terraform'
-    return
-  endif
-  lua vim.lsp.buf.hover()
-endfunction
-au CompleteChanged * call TriggerHoverInPopUp()
-inoremap <c-space> <c-x><c-o>
 nmap <C-p> :pop<CR>
-
-"""""""""""""""" BASH AS FILE EXPLORER""""""""""""""""
-
-" This section adds keybinding to open terminal enchanced with some triks:
-" - When cd to some directory, use gf/gF/<c-w>f/... to open file
-"   under cursor. No global PWD manipulations.
-" - The terminal is hidden from the visible buffers list(:ls).
-" - The terminal is opened in current file directory. Ex:
-"   if you are editing ~/test/text.txt, it will be
-"   opened in ~/test/.
-" - When opened, 'ls' command is issued automatically.
-map <F3> :call StartBashAsFSExplorer()<enter>
-function StartBashAsFSExplorer()
-  let curFileDir = fnameescape(expand("%:p:h"))
-  echo curFileDir
-  terminal
-  let cdCmd = "cd " . curFileDir . "\<CR>"
-  call feedkeys(cdCmd)
-  au CursorMoved <buffer> if &buftype == 'terminal' | call SyncTerminalPath()
-  setl nobuflisted noswapfile nonumber norelativenumber
-  autocmd BufEnter,BufLeave <buffer> setl nobuflisted noswapfile
-  call feedkeys("ls\<CR>")
-endfunction
-function SyncTerminalPath()
-  let terminalBufferNumber = bufnr()
-  let info = getbufinfo(terminalBufferNumber)
-  let title = info[0].variables.term_title
-  let pwd = substitute(title, "^.*:", "", "")
-  let pwd = substitute(pwd, "^\\s", "", "")
-  let pwd = substitute(pwd, "[[:cntrl:]].*$", "", "g")
-  let pwd = substitute(pwd, "\n.*$", "", "")
-  let pwd = expand(pwd)
-  if exists("g:SyncTerminalPwd__LastPathValue")
-    exec "set path-=" . g:SyncTerminalPwd__LastPathValue
-  endif
-  let pathComponents = split(&path, ",")
-  let newPathComponents = [pwd] + pathComponents
-  let &path = join(newPathComponents, ",")
-  let g:SyncTerminalPwd__LastPathValue = pwd
-endfunction
-
-autocmd TermOpen term://* startinsert
-
 
 """""""""""""""""" OPTIONS SECTION""""""""""""""""""""""
 
@@ -232,7 +181,7 @@ let g:UltiSnipsJumpBackwardTrigger="<m-k>"
 let g:UltiSnipsEditSplit="vertical"
 let g:UltiSnipsSnippetDirectories=["UltiSnippets"]
 
-"""""""""""""""""" Sealed secrets""""""""""""""
+"""""""""""""""""" Sealed sec(...)ret """"""""""""""
 
 autocmd BufEnter * :set conceallevel=1
 autocmd BufEnter * :set concealcursor=nvic
@@ -261,6 +210,7 @@ let g:gitgutter_use_location_list = 0
 map <space>co :copen<enter>
 map <space>cc :cclose<enter>
 map <space>cf :cfirst<enter>
+map <space>cl :clast<enter>
 map <space>cn :cnext<enter>
 map <space>cp :cprev<enter>
 map <space>cN :cnfile<enter>
@@ -269,6 +219,7 @@ map <space>cP :cpfile<enter>
 map <space>lo :lopen<enter>
 map <space>lc :lclose<enter>
 map <space>lf :lfirst<enter>
+map <space>ll :llast<enter>
 map <space>ln :lnext<enter>
 map <space>lp :lprev<enter>
 map <space>lN :lnfile<enter>
@@ -276,9 +227,6 @@ map <space>lP :lpfile<enter>
 
 """""""""""""""""Diagnostic Shortcuts""""""""""""""""
 
-map <space>dl :lua vim.diagnostic.setloclist({ open = false })<CR>
-map <space>dL :lua vim.diagnostic.setqflist({ open = false })<CR>
-map <space>ds :lua vim.diagnostic.open_float()<CR>
 let g:DIAGNOSTIC_HIDDEN = 0
 let g:DIAGNOSTIC_ERROR_ONLY = 1
 let g:DIAGNOSTIC_ALL = 2
@@ -309,11 +257,15 @@ function SetDiagnosticSeverigy(severity)
     endif
 endfunction
 silent call SetDiagnosticSeverigy(g:DIAGNOSTIC_ALL)
-map <space>dn :lua vim.diagnostic.goto_next()<CR>
-map <space>dp :lua vim.diagnostic.goto_prev()<CR>
 map <space>d0 :call SetDiagnosticSeverigy(g:DIAGNOSTIC_HIDDEN)<CR>
 map <space>d1 :call SetDiagnosticSeverigy(g:DIAGNOSTIC_ERROR_ONLY)<CR>
 map <space>d2 :call SetDiagnosticSeverigy(g:DIAGNOSTIC_ALL)<CR>
+
+map <space>dl :lua vim.diagnostic.setloclist({ open = false })<CR>
+map <space>dL :lua vim.diagnostic.setqflist({ open = false })<CR>
+map <space>ds :lua vim.diagnostic.open_float()<CR>
+map <space>dn :lua vim.diagnostic.goto_next()<CR>
+map <space>dp :lua vim.diagnostic.goto_prev()<CR>
 
 
 
@@ -323,10 +275,10 @@ let g:autopairs_enabled = 1
 autocmd BufEnter * let b:autopairs_enabled = g:autopairs_enabled
 function ToggleAutoPairPlugin()
     " toggle autopairs on all buffers
-    let bufNr = bufnr()
     let g:autopairs_enabled = !g:autopairs_enabled
-    bufdo let b:autopairs_enabled = !g:autopairs_enabled
-    execute 'b ' . bufNr
+    for buf in getbufinfo()
+        call setbufvar(buf.bufnr, 'autopairs_enabled', g:autopairs_enabled)
+    endfor
 endfunction
 let g:AutoPairsMapCR = 0
 let g:AutoPairsCenterLine = 0
@@ -351,16 +303,13 @@ let g:taboo_tab_format = " %f%I "
 
 """""""""""""""""""""""""""""""""
 
-"" run ts-node with debugger
-"" nodemon --exec "node --inspect --require ts-node/register download-all-annual-reports.ts"
-"" node --inspect -r ts-node/register/transpile-only index.ts
-
 " gpg commands:
 " decrypt from vim:
 " :r !gpg -d ~/path/to/encrypted/file
 " encrypt from vim:
 " :w !gpg -o ~/save/to/file -c
 
+""""""""""""""""""""" Other modules imports """""""""""""""""""""
 
 lua package.path = package.path .. ";" .. vim.fn.expand('<sfile>:p:h') .. "/?.lua"
 lua require('junk')
@@ -368,3 +317,5 @@ lua require('lsp.quick-preview')
 execute('source ' . expand('<sfile>:p:h') . '/fzf/fzf-file-path.vim')
 execute('source ' . expand('<sfile>:p:h') . '/fzf/fzf-file-content.vim')
 execute('source ' . expand('<sfile>:p:h') . '/lsp/quick-preview.vim')
+execute('source ' . expand('<sfile>:p:h') . '/lsp/lsp.vim')
+execute('source ' . expand('<sfile>:p:h') . '/bash-as-file-explorer/main.vim')
