@@ -30,6 +30,7 @@ function s:InitializeSearchTerminal()
     setl nobuflisted noswapfile
     setl nonumber
     setl norelativenumber
+    let &l:statusline="%f"
     tnoremap <buffer> <enter> <cmd>call PopulateQuickFixWithFileContentSearch()<CR>
     noremap <buffer> <enter> <cmd>call PopulateQuickFixWithFileContentSearch()<CR>
 endfunction
@@ -37,6 +38,7 @@ endfunction
 
 function PopulateQuickFixWithFileContentSearch()
     call FzfDumpSelectionToFile(s:termChandId)
+    call system('rm -f ' . s:searchOutputOkFilepath)
     call FzfWaitForOkFile(s:searchOutputOkFilepath)
 
     stopinsert

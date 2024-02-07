@@ -30,10 +30,14 @@ let minorInfoFgColor = 237
 let minorInfoBgColor = 234
 hi Pmenu ctermfg=254 ctermbg=245
 hi PmenuSel ctermfg=254 ctermbg=242
-hi FloatBorder ctermfg=254 ctermbg=242
+
+"hi FloatBorder ctermfg=254 ctermbg=242
+hi LspInfoBorder ctermfg=254 ctermbg=242
+
 hi LspReferenceText ctermbg=244
 hi LspReferenceRead ctermbg=240
 hi LspReferenceWrite ctermbg=240
+hi NormalFloat ctermbg=0
 
 """ light
 "set background=light
@@ -42,6 +46,7 @@ hi LspReferenceWrite ctermbg=240
 "hi Pmenu ctermfg=0 ctermbg=252
 "hi PmenuSel ctermfg=0 ctermbg=249
 "hi FloatBorder ctermfg=210 ctermbg=249
+"hi link LspInfoBorder FloatBorder
 "hi LspReferenceText ctermbg=214
 "hi LspReferenceRead ctermbg=210
 "hi LspReferenceWrite ctermbg=210
@@ -61,7 +66,8 @@ hi! link Folded LineNr
 exe 'hi IndentGuidesOdd ctermfg=NONE ctermbg=' . minorInfoBgColor
 exe 'hi IndentGuidesEven ctermfg=NONE ctermbg=' . (minorInfoBgColor + 1)
 hi! link LspSignatureActiveParameter Search
-hi! link FloatBorder SpecialKey
+"hi! link FloatBorder SpecialKey
+hi! link LspInfoBorder SpecialKey
 
 function TriggerHoverInPopUp()
   if &filetype =~ 'tf\|terraform'
@@ -91,7 +97,7 @@ function StartBashAsFSExplorer()
   let cdCmd = "cd " . curFileDir . "\<CR>"
   call feedkeys(cdCmd)
   au CursorMoved <buffer> if &buftype == 'terminal' | call SyncTerminalPath()
-  setl nobuflisted noswapfile
+  setl nobuflisted noswapfile nonumber norelativenumber
   autocmd BufEnter,BufLeave <buffer> setl nobuflisted noswapfile
   call feedkeys("ls\<CR>")
 endfunction
@@ -126,8 +132,7 @@ syntax on
 " help scroll-horizontal: zl(->), zh(<-), zL(->halfscreen), ze, zs
 set nowrap
 set isfname+=@-@ nofixendofline foldcolumn=0
-set fillchars=fold:\ ,vert:\│,eob:\ ,msgsep:‾ encoding=utf-8
-set hlsearch incsearch hidden "relativenumber number 
+set hlsearch incsearch hidden relativenumber numberwidth=1 
 set autoindent tabstop=4 expandtab shiftwidth=4
 set wildmenu wildmode=list:full directory=.
 set listchars=tab:\\x20\\x20,eol:\
@@ -140,11 +145,11 @@ set foldmethod=indent
 set foldlevelstart=99
 set foldminlines=2
 
+"set completeopt=menu,menuone,longest,preview,noselect,noinsert
 set completeopt=menu,menuone,longest
 set omnifunc=v:lua.vim.lsp.omnifunc
 
 """"""""""" Tab, windows shortcuts""""""""""""""""""""
-
 
 tnoremap <Esc> <C-\><C-n>
 nnoremap <C-s> <ESC>:w<CR>
@@ -235,7 +240,11 @@ autocmd BufEnter * :syntax match SealedSecreats /\v(sec\()@<=.*(\)ret)@=/ concea
 
 
 """"""""""""""" Git shortcuts/GitGutter config"""""""""""""""
-map <space>gs :GitGutterPreviewHunk<enter>
+map <space>gs :call OpenGitGutterHunkDiff()<enter>
+function OpenGitGutterHunkDiff()
+    let g:gitgutter_floating_window_options['border'] = 'single'
+    GitGutterPreviewHunk
+endfunction
 map <space>gU :GitGutterUndoHunk<enter>
 map <space>gn :GitGutterNextHunk<enter>
 map <space>gp :GitGutterPrevHunk<enter>
@@ -243,8 +252,10 @@ map <space>gL :GitGutterQuickFix<enter>
 map <space>gl :GitGutterQuickFixCurrentFile<enter>
 map <space>gA :GitGutterStageHunk<enter>
 map <space>gg :GitGutterToggle<enter>
-map <space>gb :exec "!git blame % --porcelain -L " . line(".") . ",+1"<enter>
+map <space>gb :exec "!git blame % --date=human -L " . line(".") . ",+1"<enter>
 call gitgutter#disable()
+let g:gitgutter_map_keys = 0
+let g:gitgutter_use_location_list = 0
 
 """""""""""""""" Quick/Location shortcuts""""""
 map <space>co :copen<enter>
@@ -263,10 +274,59 @@ map <space>lp :lprev<enter>
 map <space>lN :lnfile<enter>
 map <space>lP :lpfile<enter>
 
+"""""""""""""""""Diagnostic Shortcuts""""""""""""""""
+
+map <space>dl :lua vim.diagnostic.setloclist({ open = false })<CR>
+map <space>dL :lua vim.diagnostic.setqflist({ open = false })<CR>
+map <space>ds :lua vim.diagnostic.open_float()<CR>
+let g:DIAGNOSTIC_HIDDEN = 0
+let g:DIAGNOSTIC_ERROR_ONLY = 1
+let g:DIAGNOSTIC_ALL = 2
+let g:DiagnosticSeverity = g:DIAGNOSTIC_ALL
+function SetDiagnosticSeverigy(severity)
+    let g:DiagnosticSeverity = a:severity
+    if g:DiagnosticSeverity == g:DIAGNOSTIC_HIDDEN
+        echo "Diagnostic disabled"
+        lua vim.diagnostic.disable()
+    elseif g:DiagnosticSeverity == g:DIAGNOSTIC_ERROR_ONLY
+        echo "Diagnostic Severity is Error only"
+        lua vim.diagnostic.enable()
+        lua vim.diagnostic.config({
+        \   virtual_text = { severity = { min = 1 } },
+        \   underline = { severity = { min = 1 } },
+        \   signs = { severity = { min = 1 } },
+        \   float = { severity = { min = 1 }, border = "single" },
+        \})
+    else
+        echo "Diagnostic Severity is All Errors/Warnings"
+        lua vim.diagnostic.enable()
+        lua vim.diagnostic.config({
+        \   virtual_text = { severity = { max = 1 } },
+        \   underline = { severity = { max = 1 } },
+        \   signs = { severity = { max = 1 } },
+        \   float = { severity = { max = 1 }, border = "single" },
+        \})
+    endif
+endfunction
+silent call SetDiagnosticSeverigy(g:DIAGNOSTIC_ALL)
+map <space>dn :lua vim.diagnostic.goto_next()<CR>
+map <space>dp :lua vim.diagnostic.goto_prev()<CR>
+map <space>d0 :call SetDiagnosticSeverigy(g:DIAGNOSTIC_HIDDEN)<CR>
+map <space>d1 :call SetDiagnosticSeverigy(g:DIAGNOSTIC_ERROR_ONLY)<CR>
+map <space>d2 :call SetDiagnosticSeverigy(g:DIAGNOSTIC_ALL)<CR>
+
+
 
 """""""""""""""" AutoPair Plugin config""""""""""""
+let g:autopairs_enabled = 1
+" configure autopairs on new buffer enter
+autocmd BufEnter * let b:autopairs_enabled = g:autopairs_enabled
 function ToggleAutoPairPlugin()
-    call AutoPairsToggle()
+    " toggle autopairs on all buffers
+    let bufNr = bufnr()
+    let g:autopairs_enabled = !g:autopairs_enabled
+    bufdo let b:autopairs_enabled = !g:autopairs_enabled
+    execute 'b ' . bufNr
 endfunction
 let g:AutoPairsMapCR = 0
 let g:AutoPairsCenterLine = 0
@@ -281,7 +341,9 @@ function RecalculateStatusLine()
     let &statusline = &statusline
 endfunction
 let &laststatus = 2
-let &statusline = "%f %m%r%h%w%=%l,%L %{b:autopairs_enabled ? '()' : '('}"
+let &statusline = "%f %m%r%h%w%=%l,%c  %p%% " .
+    \ "%{g:autopairs_enabled ? '() ' : '( '}" .
+    \ "%{g:gitgutter_enabled ? 'git ' : ''}"
 
 """"""""""" Taboo plugin config"""""""
 
@@ -300,6 +362,9 @@ let g:taboo_tab_format = " %f%I "
 " :w !gpg -o ~/save/to/file -c
 
 
-lua require('init')
-source ~/.config/nvim/fzf-file-path.vim
-source ~/.config/nvim/fzf-file-content.vim
+lua package.path = package.path .. ";" .. vim.fn.expand('<sfile>:p:h') .. "/?.lua"
+lua require('junk')
+lua require('lsp.quick-preview')
+execute('source ' . expand('<sfile>:p:h') . '/fzf/fzf-file-path.vim')
+execute('source ' . expand('<sfile>:p:h') . '/fzf/fzf-file-content.vim')
+execute('source ' . expand('<sfile>:p:h') . '/lsp/quick-preview.vim')

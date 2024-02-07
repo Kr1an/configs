@@ -1,15 +1,13 @@
---local cmp = require('cmp')
 local lspconfig = require('lspconfig')
 local util = require('lspconfig.util')
-require('./fuzzy-file-search');
-require('./fuzzy-content-search');
 
-vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
-  vim.lsp.handlers.hover(err, result, ctx, {
-    zindex = 300,
-    border = "single"
-  })
-end
+
+vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+    vim.lsp.handlers.signature_help, {
+        -- Use a sharp border with `FloatBorder` highlights
+        border = "rounded"
+    }
+)
 
 local on_attach = function(client, bufnr)
     -- highlighting
@@ -36,7 +34,8 @@ local on_attach = function(client, bufnr)
      vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
      vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
      --vim.api.nvim_buf_set_keymap(bufnr, 'n', 'ne', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
-     vim.api.nvim_buf_set_keymap(bufnr, 'n', '!', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+     vim.api.nvim_buf_set_keymap(bufnr, 'i', '<C-a>', '<cmd>lua vim.lsp.buf.completion()<CR>', opts)
+
 end
 
 local servers = {
@@ -70,8 +69,12 @@ lspconfig['omnisharp'].setup {
     end,
 }
 
+--local tsserverExecutable = '/home/anton/.nvm/versions/node/v19.6.0/lib/node_modules/typescript/bin/tsserver'
 --lspconfig['tsserver'].setup {
---    cmd = { '/home/anton/Workspace/test/test-py/node_modules/.bin/typescript-language-server', '--stdio' }
+--    cmd = { 'tsserver' },
+--    cmd_env = {
+--        TSS_LOG = "-level verbose -file /tmp/tsserver.log"
+--    }
 --}
 
 
@@ -173,6 +176,7 @@ for _, lsp in ipairs(servers) do
     -- },
   }
 end
+
 
 
 
@@ -341,3 +345,13 @@ require'lspconfig'.lua_ls.setup {
   end
 }
 
+
+Result = 'hello'
+local function OnList445(resut)
+    Result = resut
+end
+
+function Test445()
+    --vim.lsp.buf.document_symbol()
+    vim.lsp.buf.document_symbol({ on_list = OnList445 })
+end

@@ -122,3 +122,27 @@ endsnippet
 snippet thr "Throw error"
 throw new Error('${1:Error}')
 endsnippet
+
+snippet TCls "Theejs Class"
+class ${1} {
+    private disposed = false;
+
+    constructor() {
+
+    }
+
+    dispose() {
+        if (this.disposed) {
+            return;
+        }
+        this.disposed = true;
+    }
+
+    update() {
+        if (this.disposed) {
+            return true;
+        }
+    }
+
+}
+endsnippet

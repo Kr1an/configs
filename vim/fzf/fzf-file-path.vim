@@ -19,6 +19,7 @@ function s:InitializeSearchTerminal()
     setl nobuflisted noswapfile
     setl nonumber
     setl norelativenumber
+    let &l:statusline="%f"
     tnoremap <buffer> <enter> <cmd>call PopulateQuickFixWithFilepathSearch()<CR>
     noremap <buffer> <enter> <cmd>call PopulateQuickFixWithFilepathSearch()<CR>
 endfunction
@@ -37,17 +38,22 @@ function GetSearchFzfCommonArgs(outputFile, okFile)
         \ " --bind 'ctrl-u:half-page-up'" .
         \ " --bind 'ctrl-b:page-up'" .
         \
+        \ " --bind 'ctrl-h:backward-word'" .
+        \ " --bind 'ctrl-l:forward-word'" .
+        \
         \ " --bind 'ctrl-r:reload(eval \"$FZF_DEFAULT_COMMAND\")+change-query()'" .
         \ " --bind 'ctrl-p:execute(" .
         \       "rm -f " . a:outputFile . ";" .
-        \       "rm -f " . a:okFile. ";" .
         \       'for l in {+}; do echo "$l"  >> ' . a:outputFile . "; done;" .
+        \       'wait;' .
         \       "touch " . a:okFile . ";" .
         \   ")'" .
         \
         \ " --bind 'ctrl-c:execute()'" .
         \ " --bind 'shift-tab:execute()'" .
         \ " --bind 'enter:execute()'" .
+        \
+        \ " --history-size=1000" .
         \ ""
 endfunction
 
@@ -61,6 +67,7 @@ endfunction
 
 function PopulateQuickFixWithFilepathSearch()
     call FzfDumpSelectionToFile(s:termChandId)
+    call system('rm -f ' . s:searchOutputOkFilepath)
     call FzfWaitForOkFile(s:searchOutputOkFilepath)
 
     stopinsert
